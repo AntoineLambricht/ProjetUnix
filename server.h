@@ -12,14 +12,12 @@
 #if ! defined (_SERVER_H_)
 #define _SERVER_H_
 
-
-#define MAX_PLAYERS 4
-
 typedef struct player {
 	int socket;
 	char name[NAME_SIZE];
+	int point;
 } player;
- 
+
 int receive_msg(char* msg, int fd);
 
 void process(player* p, char* msg, player players[],int playerCount);

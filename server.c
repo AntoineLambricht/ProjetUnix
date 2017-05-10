@@ -7,7 +7,6 @@
 
 int timer_is_over;
 
-
 void timer_handler(int signal){
 	if (signal == SIGALRM) {
 		/*TODO si il n'y à pas asser de joueurs restart l'inscription (ou continuer d'attendre ?)
@@ -26,9 +25,9 @@ int main(int argc,char** argv){
 	struct timeval timeout;
 	struct sigaction timer;
 	fd_set fdset;
-	
 
-	if( argc != 2 ){   
+
+	if( argc != 2 ){
 		fprintf(stderr,"Usage: %s port\n",argv[0]);
 		exit(1);
 	}
@@ -36,19 +35,19 @@ int main(int argc,char** argv){
 	timer.sa_handler = &timer_handler;
 	sigemptyset(&timer.sa_mask);
 	sigaction(SIGALRM, &timer, NULL);
-	
+
 	port = atoi(argv[1]);
 
 	initiateServer(&server_socket,port);
 
-	
-	
+
+
 
 	while(TRUE){
-		
+
 		int action,i,j;
-		
-	
+
+
 		FD_ZERO(&fdset);
 		FD_SET(server_socket,&fdset);
 		highestFd = server_socket+1;
@@ -60,12 +59,12 @@ int main(int argc,char** argv){
 				highestFd = players[i].socket+1;
 			}
 		}
-		
+
 		timeout.tv_sec  = 2;
 		timeout.tv_usec = 500000;
-		
+
 		action = select(8,&fdset,NULL,NULL,&timeout);
-		
+
 		if(action >0){
 			if(FD_ISSET(server_socket,&fdset)){
 				struct sockaddr_in clientAdress;
@@ -81,12 +80,12 @@ int main(int argc,char** argv){
 				}else{
 					send_message(INSCRIPTIONKO,"Impossible de s'inscrire pour le moment\n",clientSkt);
 				}
-			} 
+			}
 			for (i = 0; i < playerCount; i++) {
 				if (FD_ISSET(players[i].socket, &fdset)) {
 					char msg[MESSAGE_SIZE];
 					if (receive_msg(msg, players[i].socket)) {
-						
+
 						process(&players[i], msg,players,playerCount);
 					} else {
 						/*remove player au lieu de exit*/
@@ -96,9 +95,9 @@ int main(int argc,char** argv){
 							fprintf(stderr,"Player %d -> %s \n",j,players[j].name);
 						}
 					}
-						
+
 				}
-			}			
+			}
 		}
 		if(playing){
 			/*Implementer déroulement d'une partie*/
@@ -107,13 +106,13 @@ int main(int argc,char** argv){
 			if(timer_is_over){
 				if(playerCount>=2){
 					playing = TRUE;
-					
+
 				}else{
 					alarm(30);
 				}
 			}
 		}
-		
+
 	}
     close(server_socket);
 	return EXIT_SUCCESS;
@@ -125,14 +124,14 @@ void removePlayer(player players[],int* playerCount,int index){
 	players[index].socket = 0;
 	memcpy(players[index].name, "\0", NAME_SIZE);
 	(*playerCount)--;
-	
-	for (j = index+1; j <= *playerCount; j++) { 
+
+	for (j = index+1; j <= *playerCount; j++) {
 		players[j-1].socket = players[j].socket;
 		sprintf(players[j-1].name, "%s", players[j].name);
 	}
 	players[j-1].socket = 0;
 	memcpy(players[j-1].name, "\0", NAME_SIZE);
-	
+
 }
 
 void process(player* p, char* msg,player players[],int playerCount){
@@ -147,7 +146,7 @@ void process(player* p, char* msg,player players[],int playerCount){
             case INSCRIPTION:
 				nameOK = TRUE;
                 for(i=0;i<playerCount;i++){
-                    if(strcmp(players[i].name,value)==0){ 
+                    if(strcmp(players[i].name,value)==0){
 						nameOK = FALSE;
                         break;
                     }
@@ -160,11 +159,11 @@ void process(player* p, char* msg,player players[],int playerCount){
 					fprintf(stderr,"player with socket :%d try to set name %s but allready taken\n",p->socket,value);
 				}
                 break;
-            default: 
+            default:
                 perror("action invalide");
                 exit(1);
         }
-    
+
 }
 
 int receive_msg(char* msg, int fd) {
@@ -180,5 +179,3 @@ int receive_msg(char* msg, int fd) {
 	}
 	return TRUE;
 }
-
-

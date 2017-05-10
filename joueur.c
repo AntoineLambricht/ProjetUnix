@@ -10,13 +10,13 @@ int main(int argc,char** argv){
 	char name[NAME_SIZE];
 	int client_socket,port;
 	struct hostent *host;
-	
 
-	if( argc != 3 )
-    {   fprintf(stderr,"Usage: %s ip port\n",argv[0]);
+
+	if( argc != 3 ){
+		   fprintf(stderr,"Usage: %s ip port\n",argv[0]);
         exit(1);
     }
-	
+
 	if ((host=gethostbyname(argv[1])) == NULL) {
 		perror("Client: gethostbyname failed");
 		exit(EXIT_FAILURE);
@@ -30,10 +30,10 @@ int main(int argc,char** argv){
 	fflush(stdin);
 	fflush(stdout);
 	send_message(INSCRIPTION, name, client_socket);
-	
+
 	while(TRUE){
 		get_request(client_socket);
-		
+
 	}
 	close(client_socket);
 	return EXIT_SUCCESS;
@@ -81,11 +81,5 @@ void get_request(int server_socket){
 	}else{
 		exit(1);
 	}
-	
+
 }
-
-
-
-
-
-
