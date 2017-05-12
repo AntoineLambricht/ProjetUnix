@@ -10,7 +10,9 @@ int main(int argc,char** argv){
 	char name[NAME_SIZE];
 	int client_socket,port;
 	struct hostent *host;
+	memStruct *shm_ptr;
 
+	
 
 	if( argc != 3 ){
 		   fprintf(stderr,"Usage: %s ip port\n",argv[0]);
@@ -23,6 +25,10 @@ int main(int argc,char** argv){
 	}
 	port = atoi(argv[2]);
 
+	int shm_id = initSharedMemory(FALSE);
+	shm_ptr = attach(shm_id);
+
+
 	initiateConnection(&client_socket,host,port);
 	fprintf(stderr,"Connected\n");
 	printf("Enter your name > ");
@@ -32,6 +38,7 @@ int main(int argc,char** argv){
 	send_message(INSCRIPTION, name, client_socket);
 
 	while(TRUE){
+		fprintf(stderr,"Nb players = %d\n",shm_ptr->nbPlayers);
 		get_request(client_socket);
 
 	}

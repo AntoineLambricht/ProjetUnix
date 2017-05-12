@@ -3,20 +3,16 @@
 	Author: 	BERGE Benjamin, LAMBRICHT Antoine
 	Serie:		1
 */
-#include "util.h"
+
 #include "socket.h"
+#include "util.h"
+#include "sharedMemory.h"
 
 #include 	<signal.h>
 #include 	<sys/time.h>
 
 #if ! defined (_SERVER_H_)
 #define _SERVER_H_
-
-typedef struct player {
-	int socket;
-	char name[NAME_SIZE];
-	int point;
-} player;
 
 int receive_msg(char* msg, int fd);
 

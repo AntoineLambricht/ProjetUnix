@@ -9,6 +9,7 @@
 #include	  <unistd.h>
 
 #if ! defined (_UTIL_H_)
+#define _UTIL_H_
 
 #define SYS(call) ((call) == -1) ? (perror(#call ": ERROR"),exit(1)) : 0
 
@@ -30,7 +31,13 @@
 typedef struct card{
   unsigned char num;
   unsigned char couleur;
-}card;
+}Card;
+
+typedef struct player {
+	int socket;
+	char name[NAME_SIZE];
+	int point;
+} player;
 
 void send_message(int type, const char* payload, int socket);
 

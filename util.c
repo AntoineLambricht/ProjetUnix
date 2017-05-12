@@ -4,7 +4,8 @@
 	Serie:		1
 */
 #include "util.h"
- 
+
+
 void send_message(int type, const char* payload, int socket) {
 	char msg[MESSAGE_SIZE];
 	sprintf(msg, "%d %s", type, payload);
@@ -13,4 +14,3 @@ void send_message(int type, const char* payload, int socket) {
 		exit(1);
 	}
 }
-

@@ -5,6 +5,7 @@
 */
 #include "server.h"
 
+
 int timer_is_over;
 
 void timer_handler(int signal){
@@ -25,7 +26,14 @@ int main(int argc,char** argv){
 	struct timeval timeout;
 	struct sigaction timer;
 	fd_set fdset;
+	memStruct *shm_ptr;
 
+	int shm_id = initSharedMemory(TRUE);
+
+
+	shm_ptr = attach(shm_id);
+
+	
 
 	if( argc != 2 ){
 		fprintf(stderr,"Usage: %s port\n",argv[0]);
@@ -73,6 +81,7 @@ int main(int argc,char** argv){
 				fprintf(stderr,"Connection from %s %d\n",inet_ntoa(clientAdress.sin_addr), ntohs(clientAdress.sin_port));
 				if(playerCount<MAX_PLAYERS && !playing){
 					players[playerCount++].socket = clientSkt;
+					shm_ptr->nbPlayers = playerCount;
 					if(playerCount == 2){
 						fprintf(stderr,"Timer start\n");
 						alarm(30);
