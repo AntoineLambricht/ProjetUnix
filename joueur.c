@@ -7,14 +7,9 @@
 
 
 int main(int argc,char** argv){
-	char name[NAME_SIZE];
 	int client_socket,port;
 	struct hostent *host;
-        
-	/*memStruct *shm_ptr;*/
-
-	
-
+    
 	if( argc != 3 ){
 		   fprintf(stderr,"Usage: %s ip port\n",argv[0]);
         exit(1);
@@ -26,19 +21,15 @@ int main(int argc,char** argv){
 	}
 	port = atoi(argv[2]);
 
-	/*int shm_id = */
 	initSharedMemory(FALSE);
-	/*shm_ptr = attach(shm_id);*/
-        init_semaphore(FALSE);
+	init_semaphore(FALSE);
 
 
 	initiateConnection(&client_socket,host,port);
+	
 	fprintf(stderr,"Connected\n");
-	printf("Enter your name > ");
-	scanf("%s", name);
-	fflush(stdin);
-	fflush(stdout);
-	send_message(INSCRIPTION, name, client_socket);
+	
+	inscription(client_socket);
 
 	while(TRUE){
 		/*fprintf(stderr,"Nb players = %d\n",shm_ptr->nbPlayers);*/
@@ -50,7 +41,7 @@ int main(int argc,char** argv){
 	return EXIT_SUCCESS;
 }
 
-int receive_msg(char* msg, int fd) {
+int receive_msg(Message *msg, int fd) {
 	int bytes_received;
 	if ((bytes_received = recv(fd, msg, MESSAGE_SIZE, 0)) <= 0) {
 		if (bytes_received == 0) {
@@ -64,26 +55,32 @@ int receive_msg(char* msg, int fd) {
 	return TRUE;
 }
 
-void get_request(int server_socket){
-	char msg[MESSAGE_SIZE];
-	char* value;
-    int action;
+void inscription(int server_socket){
 	char name[NAME_SIZE];
-	if (receive_msg(msg,server_socket)){
-		fprintf(stderr,"Message from server :%s\n",msg);
-		value=strtok(msg," ");
-		action=atoi(value);
-		value=strtok(NULL," ");
-		switch(action){
+	Message inscription;
+	
+	printf("Enter your name > ");
+	scanf("%s", name);
+	fflush(stdin);
+	fflush(stdout);
+				
+	inscription.action = INSCRIPTION;
+	strcpy(inscription.payload.name,name);
+				
+	send_message(inscription, server_socket);
+}
+
+void get_request(int server_socket){
+	Message msg;
+	if (receive_msg(&msg,server_socket)){
+		fprintf(stderr,"Message action from server :%d\n",msg.action);
+		
+		switch(msg.action){
 			case NAME_TAKEN:
-				printf("Enter your name > ");
-				scanf("%s", name);
-				fflush(stdin);
-				fflush(stdout);
-				send_message(INSCRIPTION, name, server_socket);
+				inscription(server_socket);
 				break;
 			case INSCRIPTIONKO:
-				fprintf(stderr,"%s",value);
+				fprintf(stderr,"%s",msg.payload.str);
 				exit(1);
 			default:
 				perror("action invalide");

@@ -3,15 +3,15 @@
 	Author: 	BERGE Benjamin, LAMBRICHT Antoine
 	Serie:		1
 */
+
+#if ! defined (_UTIL_H_)
+#define _UTIL_H_
+
 #include    <stdio.h>
 #include    <stdlib.h>
 #include    <string.h>
 #include	<unistd.h>
-#include    <sys/socket.h>
-#include    <sys/types.h>
 
-#if ! defined (_UTIL_H_)
-#define _UTIL_H_
 
 #define SYS(call) ((call) == -1) ? (perror(#call ": ERROR"),exit(1)) : 0
 
@@ -48,19 +48,31 @@ typedef struct player {
 	char name[NAME_SIZE];
 	int points;
 } player;
-
+/*Union of what a payload can be*/
 union Payload{
+	/*distribution*/
 	Card dist30[30];
 	Card dist20[20];
 	Card dist15[15];
 	
+	/*ecart*/
+	Card ecart[5];
+	
+	/*jouer une carte*/
+	Card carte;
+	
+	/*Message*/
+	char str[MESSAGE_SIZE];
+	
+	/*Name pour inscription*/
+
+	char name[NAME_SIZE];
 };
 
 typedef struct message{
 	int action;
-	union Payload p;
+	union Payload payload;
 }Message;
 
-void send_message(int type, const char* payload, int socket);
 
 #endif

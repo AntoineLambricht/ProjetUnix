@@ -12,7 +12,7 @@
 #include "socket.h"
 #include "ipc.h"
 
-
+void inscription();
 
 void get_request(int client_socket);
 

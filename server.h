@@ -20,9 +20,9 @@ void melanger(Card cartes[]);
 
 void initCartes(Card cartes[]);
 
-int receive_msg(char* msg, int fd);
+int receive_msg(Message *msg, int fd);
 
-void process(player* p, char* msg, player players[],int playerCount);
+void process(player* p, Message *msg, player players[],int playerCount);
 
 void removePlayer(player players[],int* playerCount,int index);
 

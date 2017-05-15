@@ -28,6 +28,7 @@ int main(int argc,char** argv){
 	struct timeval timeout;
 	struct sigaction timer;
 	fd_set fdset;
+	Message message;
 	
 	initSharedMemory(TRUE);
 	init_semaphore(TRUE);
@@ -90,15 +91,16 @@ int main(int argc,char** argv){
 						alarm(30);
 					}
 				}else{
-					send_message(INSCRIPTIONKO,"Impossible de s'inscrire pour le moment\n",clientSkt);
+					message.action = INSCRIPTIONKO;
+					strcpy(message.payload.str,"Impossible de s'inscrire pour le moment\n");
+					send_message(message,clientSkt);
 				}
 			}
 			for (i = 0; i < playerCount; i++) {
 				if (FD_ISSET(players[i].socket, &fdset)) {
-					char msg[MESSAGE_SIZE];
-					if (receive_msg(msg, players[i].socket)) {
-
-						process(&players[i], msg,players,playerCount);
+					Message msg;
+					if (receive_msg(&msg, players[i].socket)) {
+						process(&players[i],&msg,players,playerCount);
 					} else {
 						/*remove player au lieu de exit*/
 						fprintf(stderr,"Removing player \n");
@@ -114,7 +116,7 @@ int main(int argc,char** argv){
 		if(playing){
 			switch(game_state){
 				case 0:
-					distribution(players,playerCount,cartes);
+					/*distribution(players,playerCount,cartes);*/
 					break;
 				default:
 					break;
@@ -152,30 +154,30 @@ void removePlayer(player players[],int* playerCount,int index){
 
 }
 
-void process(player* p, char* msg,player players[],int playerCount){
-    char* value;
-    int action,i,nameOK;
+void process(player* p, Message *msg ,player players[],int playerCount){
+    int i,nameOK;
+	Message nameTaken;
+	
 	/*exrtaire le nom et l action puis la traiter dans un swith
 	//seule action pour le moment = INSCRIPTION (0) où le but est d'enregistrer le nom de l'user*/
-        value=strtok(msg," ");
-        action=atoi(value);
-		value=strtok(NULL," ");
-        switch(action){
+        
+        switch(msg->action){
             case INSCRIPTION:
 				nameOK = TRUE;
                 for(i=0;i<playerCount;i++){
-                    if(strcmp(players[i].name,value)==0){
+                    if(strcmp(players[i].name,msg->payload.name)==0){
 						nameOK = FALSE;
                         break;
                     }
                 }
 				if(nameOK){
-					sprintf(p->name,"%s",value);
+					sprintf(p->name,"%s",msg->payload.name);
 					fprintf(stderr,"player: %s successfully added\n",p->name);
 					ecrirePlayers(players,playerCount);
 				}else{
-					send_message(NAME_TAKEN,"",p->socket);
-					fprintf(stderr,"player with socket :%d try to set name %s but allready taken\n",p->socket,value);
+					nameTaken.action = NAME_TAKEN;
+					send_message(nameTaken,p->socket);
+					fprintf(stderr,"player with socket :%d try to set name %s but allready taken\n",p->socket,msg->payload.name);
 				}
                 break;
             default:
@@ -185,9 +187,9 @@ void process(player* p, char* msg,player players[],int playerCount){
 
 }
 
-int receive_msg(char* msg, int fd) {
+int receive_msg(Message *msg, int fd) {
 	int bytes_received;
-	if ((bytes_received = recv(fd, msg, MESSAGE_SIZE, 0)) <= 0) {
+	if ((bytes_received = recv(fd, msg, sizeof(Message), 0)) <= 0) {
 		if (bytes_received == 0) {
 			printf("Client disconnected.\n");
 		}
@@ -231,7 +233,7 @@ void melanger(Card cartes[]){
     
 }
 
-void distribution(player players[],int playerCount,Card cartes[]){
+/*void distribution(player players[],int playerCount,Card cartes[]){
 	int n = NB_CARDS/playerCount;
 	
-}
+}*/

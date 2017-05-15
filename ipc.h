@@ -37,15 +37,12 @@ typedef struct memStruct {
 typedef int semaphore;
 
 
-/*memStruct *attach(int shmid);*/
-
 int initSharedMemory(int is_server);
 
 void ecrirePlayers(player newPlayers[MAX_PLAYERS],int newNbPlayers);
 void ecrirePlis(Card newPlis[MAX_PLAYERS]);
 void lirePoints();
 void lirePlis();
-
 
 void init_semaphore(int is_server);
 int semaphore_up(int semaphore);

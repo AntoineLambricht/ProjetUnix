@@ -6,6 +6,13 @@
 
 #include "socket.h"
 
+void send_message(Message m, int socket) {
+	if (send(socket, &m, sizeof(Message),0) == -1) {
+		perror("Failed to send a message to the serveur");
+		exit(1);
+	}
+}
+
 
 void initiateServer(int *server_socket,int port){
 	struct sockaddr_in my_address;
