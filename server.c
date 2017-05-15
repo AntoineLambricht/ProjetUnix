@@ -116,7 +116,8 @@ int main(int argc,char** argv){
 		if(playing){
 			switch(game_state){
 				case 0:
-					/*distribution(players,playerCount,cartes);*/
+					distribution(players,playerCount,cartes);
+                                        game_state=1;
 					break;
 				default:
 					break;
@@ -233,7 +234,24 @@ void melanger(Card cartes[]){
     
 }
 
-/*void distribution(player players[],int playerCount,Card cartes[]){
-	int n = NB_CARDS/playerCount;
+void distribution(player players[],int playerCount,Card cartes[]){
+        Message deck;
+        Dist dist;
+        Card *cartes_player;
+	int i, n = NB_CARDS/playerCount;
+        int x,j=0;
+        cartes_player=malloc(n*sizeof(MAX_PLAYERS));
+        
+        for(i=0;i<playerCount;i++){
+            memcpy(cartes_player,cartes+j,n*sizeof(Card));
+            dist.nbr=n;
+            for(x=0;x<n;x++){
+                dist.cards[x]=cartes_player[x];
+            }
+            deck.action = DISTRIBUTION;
+            deck.payload.dist =dist;
+            send_message(deck,players[i].socket);
+            j+=n;
+        }
 	
-}*/
+}

@@ -5,7 +5,7 @@
 */
 #include "joueur.h"
 
-
+Card* our_cards;
 int main(int argc,char** argv){
 	int client_socket,port;
 	struct hostent *host;
@@ -82,6 +82,9 @@ void get_request(int server_socket){
 			case INSCRIPTIONKO:
 				fprintf(stderr,"%s",msg.payload.str);
 				exit(1);
+                        case DISTRIBUTION:
+                            register_cards(msg);
+                            break;
 			default:
 				perror("action invalide");
                 exit(1);
@@ -90,4 +93,11 @@ void get_request(int server_socket){
 		exit(1);
 	}
 
+}
+
+void register_cards(Message msg){
+    Dist deck= msg.payload.dist;
+    int nbr = deck.nbr;
+    our_cards=deck.cards;
+    print_tab_color(our_cards,nbr);
 }

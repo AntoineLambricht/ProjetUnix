@@ -23,6 +23,7 @@
 
 #define NB_CARDS 60
 #define MAX_PLAYERS 4
+#define MAX_CARD_BY_PLAYER 30
 
 
 #define NAME_SIZE 40
@@ -31,6 +32,7 @@
 #define INSCRIPTION 0
 #define NAME_TAKEN 1
 #define INSCRIPTIONKO 2
+#define DISTRIBUTION 3
 
 #define PIQUE 1
 #define TREFLE 2
@@ -48,12 +50,16 @@ typedef struct player {
 	char name[NAME_SIZE];
 	int points;
 } player;
+
+typedef struct dist{
+    int nbr;
+    Card cards[MAX_CARD_BY_PLAYER];
+} Dist;
+
 /*Union of what a payload can be*/
 union Payload{
 	/*distribution*/
-	Card dist30[30];
-	Card dist20[20];
-	Card dist15[15];
+        Dist dist;  
 	
 	/*ecart*/
 	Card ecart[5];

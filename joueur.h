@@ -11,9 +11,12 @@
 #include "util.h"
 #include "socket.h"
 #include "ipc.h"
+#include "color.h"
 
 void inscription();
 
 void get_request(int client_socket);
+
+void register_cards(Message msg);
 
 #endif

@@ -7,6 +7,7 @@
 #include "socket.h"
 #include "ipc.h"
 #include "util.h"
+#include "color.h"
 
 #include 	<signal.h>
 #include 	<sys/time.h>
@@ -25,5 +26,7 @@ int receive_msg(Message *msg, int fd);
 void process(player* p, Message *msg, player players[],int playerCount);
 
 void removePlayer(player players[],int* playerCount,int index);
+
+void distribution(player players[],int playerCount,Card cartes[]);
 
 #endif
