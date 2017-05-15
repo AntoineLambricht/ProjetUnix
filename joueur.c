@@ -10,7 +10,8 @@ int main(int argc,char** argv){
 	char name[NAME_SIZE];
 	int client_socket,port;
 	struct hostent *host;
-	memStruct *shm_ptr;
+        
+	/*memStruct *shm_ptr;*/
 
 	
 
@@ -25,8 +26,10 @@ int main(int argc,char** argv){
 	}
 	port = atoi(argv[2]);
 
-	int shm_id = initSharedMemory(FALSE);
-	shm_ptr = attach(shm_id);
+	/*int shm_id = */
+	initSharedMemory(FALSE);
+	/*shm_ptr = attach(shm_id);*/
+        init_semaphore(FALSE);
 
 
 	initiateConnection(&client_socket,host,port);
@@ -38,7 +41,8 @@ int main(int argc,char** argv){
 	send_message(INSCRIPTION, name, client_socket);
 
 	while(TRUE){
-		fprintf(stderr,"Nb players = %d\n",shm_ptr->nbPlayers);
+		/*fprintf(stderr,"Nb players = %d\n",shm_ptr->nbPlayers);*/
+		lirePoints();
 		get_request(client_socket);
 
 	}

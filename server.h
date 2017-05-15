@@ -5,14 +5,20 @@
 */
 
 #include "socket.h"
+#include "ipc.h"
 #include "util.h"
-#include "sharedMemory.h"
 
 #include 	<signal.h>
 #include 	<sys/time.h>
+#include 	<time.h>
 
 #if ! defined (_SERVER_H_)
 #define _SERVER_H_
+
+
+void melanger(Card cartes[]);
+
+void initCartes(Card cartes[]);
 
 int receive_msg(char* msg, int fd);
 

@@ -20,20 +20,22 @@ void timer_handler(int signal){
 
 int main(int argc,char** argv){
 	/*char buffer[256];*/
+	Card cartes[NB_CARDS];
 	player players[MAX_PLAYERS] = {{0}};
 	int server_socket,port,highestFd,playerCount = 0;
 	int playing = FALSE;
+	int game_state = 0;
 	struct timeval timeout;
 	struct sigaction timer;
 	fd_set fdset;
-	memStruct *shm_ptr;
-
-	int shm_id = initSharedMemory(TRUE);
-
-
-	shm_ptr = attach(shm_id);
-
 	
+	initSharedMemory(TRUE);
+	init_semaphore(TRUE);
+
+	initCartes(cartes);
+	
+	
+	melanger(cartes);
 
 	if( argc != 2 ){
 		fprintf(stderr,"Usage: %s port\n",argv[0]);
@@ -81,7 +83,8 @@ int main(int argc,char** argv){
 				fprintf(stderr,"Connection from %s %d\n",inet_ntoa(clientAdress.sin_addr), ntohs(clientAdress.sin_port));
 				if(playerCount<MAX_PLAYERS && !playing){
 					players[playerCount++].socket = clientSkt;
-					shm_ptr->nbPlayers = playerCount;
+					/*shm_ptr->nbPlayers = playerCount;*/
+					ecrirePlayers(players,playerCount);
 					if(playerCount == 2){
 						fprintf(stderr,"Timer start\n");
 						alarm(30);
@@ -109,8 +112,13 @@ int main(int argc,char** argv){
 			}
 		}
 		if(playing){
-			/*Implementer déroulement d'une partie*/
-			fprintf(stderr,"Game running \n");
+			switch(game_state){
+				case 0:
+					distribution(players,playerCount,cartes);
+					break;
+				default:
+					break;
+			}			
 		}else{
 			if(timer_is_over){
 				if(playerCount>=2){
@@ -140,6 +148,7 @@ void removePlayer(player players[],int* playerCount,int index){
 	}
 	players[j-1].socket = 0;
 	memcpy(players[j-1].name, "\0", NAME_SIZE);
+	ecrirePlayers(players,*playerCount);
 
 }
 
@@ -163,6 +172,7 @@ void process(player* p, char* msg,player players[],int playerCount){
 				if(nameOK){
 					sprintf(p->name,"%s",value);
 					fprintf(stderr,"player: %s successfully added\n",p->name);
+					ecrirePlayers(players,playerCount);
 				}else{
 					send_message(NAME_TAKEN,"",p->socket);
 					fprintf(stderr,"player with socket :%d try to set name %s but allready taken\n",p->socket,value);
@@ -187,4 +197,41 @@ int receive_msg(char* msg, int fd) {
 		return FALSE;
 	}
 	return TRUE;
+}
+
+void initCartes(Card cartes[]){
+	int i,c = 1;
+	for(i=1;i<=NB_CARDS;i++){
+		if(c<PAYOO){
+			cartes[i-1].couleur = c;
+			
+			if(i%10 == 0){
+				c+=1;
+				cartes[i-1].num = 10;
+			}else{
+				cartes[i-1].num = (i%10);
+			}
+		}else{
+			cartes[i-1].num = (i-40);
+			cartes[i-1].couleur = c;
+		}
+		
+	}
+}
+
+void melanger(Card cartes[]){
+	srand(time(NULL));
+    size_t i;
+    for (i = 0; i < NB_CARDS-1; i++) {
+		size_t j = i + rand() / (RAND_MAX / (NB_CARDS - i) + 1);
+        Card t = cartes[j];
+        cartes[j] = cartes[i];
+        cartes[i] = t;
+	}
+    
+}
+
+void distribution(player players[],int playerCount,Card cartes[]){
+	int n = NB_CARDS/playerCount;
+	
 }

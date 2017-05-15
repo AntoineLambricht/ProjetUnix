@@ -10,7 +10,7 @@
 
 #include "util.h"
 #include "socket.h"
-#include "sharedMemory.h"
+#include "ipc.h"
 
 
 
