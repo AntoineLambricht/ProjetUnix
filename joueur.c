@@ -43,7 +43,7 @@ int main(int argc,char** argv){
 
 int receive_msg(Message *msg, int fd) {
 	int bytes_received;
-	if ((bytes_received = recv(fd, msg, MESSAGE_SIZE, 0)) <= 0) {
+	if ((bytes_received = recv(fd, msg, sizeof(Message), 0)) <= 0) {
 		if (bytes_received == 0) {
 			printf("Server disconnected.\n");
 		}
