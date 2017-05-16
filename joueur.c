@@ -64,6 +64,21 @@ void get_request(int server_socket){
             case DISTRIBUTION:
                 register_cards(msg,server_socket);
                 break;
+			case DISTRIBUTION_ECART:
+				/*TODO add ecart to cards*/
+				break;
+			case DEMANDE_CARTE:
+				//TODO
+				break;
+			case DEMANDE_POINTS:
+				//TODO
+				break;
+			case ENVOI_PLI:
+				//TODO
+				break;
+			case ALERTE_FIN_PARTIE:
+				//TODO
+				break;
 			default:
 				perror("action invalide");
                 exit(1);

@@ -162,10 +162,16 @@ int main(int argc,char** argv){
 										}else{
 											memcpy(distribution_ecart.payload.ecart,&ecarts[j+1],sizeof(Card)*SIZE_ECART);
 										}
-										send_message(distribution_ecart,players[j]);
+										send_message(distribution_ecart,players[j].socket);
 									
 									}
 								}
+								break;
+							case REPONSE_CARTE:
+								//TODO
+								break;
+							case REPONSE_POINTS:
+								//TODO
 								break;
 							default:
 								perror("action invalide\n");
