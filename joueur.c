@@ -6,7 +6,7 @@
 #include "joueur.h"
 
 Card* our_cards;
-int size;
+int our_size;
 int main(int argc,char** argv){
 	int client_socket,port;
 	struct hostent *host;
@@ -53,18 +53,18 @@ int receive_msg(Message *msg, int fd) {
 
 
 
-void add_ecart(Message msg){
-    int new_size;
-    Card new_deck[size+SIZE_ECART];
-    new_size=size+SIZE_ECART;
-    memcpy(new_deck,our_cards,sizeof(Card)*size);
-    memcpy(new_deck+size,msg.payload.ecart,sizeof(Card)*SIZE_ECART);
-    size=new_size;
-    our_cards=new_deck;
+
+
+void choose_card(Message msg){
+    Plis pli=lirePlis();
+    lire_remove_emplacements(msg.payload.carte,our_cards,our_size,1);
+    msg.action=REPONSE_CARTE;
+    send_message(msg,sever_socket);
 }
 
 void get_request(int server_socket){
 	Message msg;
+        int couleur_payoo;
 	if (receive_msg(&msg,server_socket)){
 		fprintf(stderr,"Message action from server :%d\n",msg.action);
 		
@@ -82,8 +82,10 @@ void get_request(int server_socket){
                             print_tab_color(msg.payload.ecart, SIZE_ECART);
                             break;
 			case DEMANDE_CARTE:
-				//TODO
-				break;
+                            printf("Vos cartes\n");
+                            print_tab_color(our_cards, our_size);
+                            choose_card(msg);
+                            break;
 			case DEMANDE_POINTS:
 				//TODO
 				break;
@@ -125,7 +127,7 @@ void register_cards(Message msg, int socket){
     our_cards=deck.cards;
     print_tab_color(our_cards,nbr);
     lire_remove_emplacements(m.payload.ecart,our_cards,&nbr,SIZE_ECART);
-    size=nbr;
+    our_size=nbr;
     m.action=ENVOI_ECART;
    
     send_message(m,socket);
@@ -198,4 +200,15 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
         }
     }
     source=new_source;    
+}
+
+
+void add_ecart(Message msg){
+    int new_size;
+    Card new_deck[our_size+SIZE_ECART];
+    new_size=our_size+SIZE_ECART;
+    memcpy(new_deck,our_cards,sizeof(Card)*our_size);
+    memcpy(new_deck+our_size,msg.payload.ecart,sizeof(Card)*SIZE_ECART);
+    our_size=new_size;
+    our_cards=new_deck;
 }
