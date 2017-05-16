@@ -17,6 +17,6 @@ void inscription();
 
 void get_request(int client_socket);
 
-void register_cards(Message msg);
+void register_cards(Message msg, int socket);
 
 #endif

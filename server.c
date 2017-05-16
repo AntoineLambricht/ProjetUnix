@@ -181,10 +181,17 @@ void process(player* p, Message *msg ,player players[],int playerCount){
 					fprintf(stderr,"player with socket :%d try to set name %s but allready taken\n",p->socket,msg->payload.name);
 				}
                 break;
+            case DISTRIBUTION:
+                ecart_redistribution(*msg);
+                break;
             default:
                 perror("action invalide");
                 exit(1);
         }
+
+}
+
+void ecart_redistribution(Message m){
 
 }
 
@@ -253,5 +260,4 @@ void distribution(player players[],int playerCount,Card cartes[]){
             send_message(deck,players[i].socket);
             j+=n;
         }
-	
 }

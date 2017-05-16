@@ -83,7 +83,7 @@ void get_request(int server_socket){
 				fprintf(stderr,"%s",msg.payload.str);
 				exit(1);
                         case DISTRIBUTION:
-                            register_cards(msg);
+                            register_cards(msg,server_socket);
                             break;
 			default:
 				perror("action invalide");
@@ -95,9 +95,30 @@ void get_request(int server_socket){
 
 }
 
-void register_cards(Message msg){
+void register_cards(Message msg, int socket){
+    Message m;
+    int res,i;
+    Card ecart[SIZE_ECART];
     Dist deck= msg.payload.dist;
     int nbr = deck.nbr;
     our_cards=deck.cards;
     print_tab_color(our_cards,nbr);
+    printf("Nous allez maintenant choisir l'écart.\nEntrer l'emplacement des %d cartes de l'écart (en commancant par 1)\n",SIZE_ECART);
+    printf("usage->1 2 3 ...\n");
+    fflush(stdin);
+    for(i=0;i<SIZE_ECART;i++){
+        printf("Entrer la %d carte", SIZE_ECART-i);
+        scanf("%d",&res);
+        ecart[i]=our_cards[res-1];
+    }
+    for(i=0;i<SIZE_ECART;i++){
+        m.payload.ecart[i]=ecart[i];
+    }
+    /*lire_remove_emplacements(m.payload.ecart,our_cards,nbr,SIZE_ECART);*/
+    m.action=DISTRIBUTION;
+   
+    send_message(m,socket);
+    
+    
+    
 }

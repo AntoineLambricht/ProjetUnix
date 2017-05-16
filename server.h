@@ -29,4 +29,6 @@ void removePlayer(player players[],int* playerCount,int index);
 
 void distribution(player players[],int playerCount,Card cartes[]);
 
+void ecart_redistribution(Message m);
+
 #endif

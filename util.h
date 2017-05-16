@@ -24,6 +24,7 @@
 #define NB_CARDS 60
 #define MAX_PLAYERS 4
 #define MAX_CARD_BY_PLAYER 30
+#define SIZE_ECART 5
 
 
 #define NAME_SIZE 40
@@ -79,6 +80,9 @@ typedef struct message{
 	int action;
 	union Payload payload;
 }Message;
+
+void lire_remove_emplacements(Card * buffer,Card * source,int size,int nbr);
+
 
 
 #endif
