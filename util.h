@@ -63,6 +63,11 @@ typedef struct dist{
     Card cards[MAX_CARD_BY_PLAYER];
 } Dist;
 
+typedef struct pli{
+	unsigned char nbr;
+	Card pli[MAX_PLAYERS];
+} Pli
+
 /*Union of what a payload can be*/
 union Payload{
 	/*distribution*/
@@ -80,6 +85,12 @@ union Payload{
 	/*Name pour inscription*/
 
 	char name[NAME_SIZE];
+	
+	/*Points*/
+	unsigned char points;
+	
+	/*Envois plis*/
+	Pli pli;
 };
 
 typedef struct message{

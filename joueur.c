@@ -66,6 +66,7 @@ void get_request(int server_socket){
                 break;
 			case DISTRIBUTION_ECART:
 				/*TODO add ecart to cards*/
+				
 				break;
 			case DEMANDE_CARTE:
 				//TODO

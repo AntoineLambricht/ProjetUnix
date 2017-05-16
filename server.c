@@ -31,6 +31,7 @@ int main(int argc,char** argv){
 	struct sigaction timer;
 	fd_set fdset;
 	Message message;
+	Card pli[MAX_PLAYERS];
 	
 	initSharedMemory(TRUE);
 	init_semaphore(TRUE);
@@ -148,7 +149,6 @@ int main(int argc,char** argv){
 						switch(msg.action){
 							
 							case ENVOI_ECART:
-								/*ecart_redistribution(playerCount,players,p,msg->payload,&ecartCount);*/
 								memcpy(&ecarts[i],msg.payload.ecart,sizeof(Card)*SIZE_ECART);
 								ecartCount++;
 								fprintf(stderr,"Ecart reçu de %s\n",players[i].name);
@@ -163,15 +163,18 @@ int main(int argc,char** argv){
 											memcpy(distribution_ecart.payload.ecart,&ecarts[j+1],sizeof(Card)*SIZE_ECART);
 										}
 										send_message(distribution_ecart,players[j].socket);
-									
+										game_state = 2;
 									}
 								}
 								break;
 							case REPONSE_CARTE:
-								//TODO
+								pli[i]=msg.payload.carte;
+								ecrirePli(pli);
+								//TODO changer le game state
 								break;
 							case REPONSE_POINTS:
 								//TODO
+								
 								break;
 							default:
 								perror("action invalide\n");
@@ -190,10 +193,43 @@ int main(int argc,char** argv){
 		}
 		if(playing){
 			switch(game_state){
+				//debut de manche
 				case 0:
 					distribution(players,playerCount,cartes);
                     game_state=1;
 					break;
+				//choix et redistribution des écarts
+				case 1:
+					// ne rien faire ? 
+					break;
+				//tirage au sort du papayoo
+				case 2:
+					//TODO
+					break;
+				//tours
+				case 3:
+					//TODO
+					switch(turn_state){
+						//debut du tour
+						case 1:
+							switch(player_turn_state){
+								//waiting for response ?
+								case 1:
+									break;
+								//get response , switch player turn
+								case 2:
+									
+									break;
+								
+							}
+							break;
+						//fin du tour et envois du plis 
+						case 2:
+							break;
+							
+					}
+					break;
+				
 				default:
 					break;
 			}			
