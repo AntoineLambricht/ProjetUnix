@@ -60,6 +60,28 @@ void choose_card(Message msg, int socket){
     Pli* pli=lirePlis();
     couleur=pli->pli[0].couleur;
     contains = contains_color(couleur);
+    if(couleur!=0){
+        char *couleur_str;
+        switch(couleur){
+            case TREFLE:
+                couleur_str="trefle";
+                break;
+            case PIQUE:
+                couleur_str="Pique";
+                break;
+            case COEUR:
+                couleur_str="coeur";
+                break;
+            case CARREAU:
+                couleur_str="carreau";
+                break;
+            case PAYOO:
+                couleur_str="payoo";
+                break;
+        }
+        printf("La couleur est %s\n",couleur_str);
+    }
+    printf("Entrer l'emplacement de la carte que vous désirez placer\n");
     lire_remove_emplacements(&msg.payload.carte,our_cards,&our_size,1);
     while(couleur!=0 && couleur!=msg.payload.carte.couleur && contains){
         printf("Cette carte n'est pas de la bonne couleur\n");
@@ -71,6 +93,9 @@ void choose_card(Message msg, int socket){
 
 int contains_color(int couleur){
     Card *q;
+    if(couleur==0){
+        return FALSE;
+    }
     for(q=our_cards;q-our_cards<our_size;q++){
         if(q->couleur==couleur){
             return TRUE;
@@ -97,6 +122,9 @@ void get_request(int server_socket){
                             add_ecart(msg);
                             printf("Ecart reçu\n");
                             print_tab_color(msg.payload.ecart, SIZE_ECART);
+                            break;
+                        case PAPAYOO:
+                            couleur_payoo=msg.payload.papayoo;
                             break;
 			case DEMANDE_CARTE:
                             printf("Vos cartes\n");
@@ -159,7 +187,7 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
     int invalide=FALSE;
     char * token;
     /*Entrée des cartes*/
-    printf("Nous allez maintenant choisir l'écart.\nEntrer l'emplacement des %d cartes de l'écart (en commancant par 1)\n",SIZE_ECART);
+    printf("Nous allez maintenant choisir l'écart.\nEntrer l'emplacement des %d cartes de l'écart (en commancant par 0)\n",SIZE_ECART);
     printf("usage->1-2-3 ...\n");
     /*validation du bon format*/
     do{
