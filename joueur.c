@@ -6,6 +6,7 @@
 #include "joueur.h"
 
 Card* our_cards;
+int size;
 int main(int argc,char** argv){
 	int client_socket,port;
 	struct hostent *host;
@@ -52,6 +53,16 @@ int receive_msg(Message *msg, int fd) {
 
 
 
+void add_ecart(Message msg){
+    int new_size;
+    Card new_deck[size+SIZE_ECART];
+    new_size=size+SIZE_ECART;
+    memcpy(new_deck,our_cards,sizeof(Card)*size);
+    memcpy(new_deck+size,msg.payload.ecart,sizeof(Card)*SIZE_ECART);
+    size=new_size;
+    our_cards=new_deck;
+}
+
 void get_request(int server_socket){
 	Message msg;
 	if (receive_msg(&msg,server_socket)){
@@ -59,15 +70,17 @@ void get_request(int server_socket){
 		
 		switch(msg.action){
 			case INSCRIPTIONKO:
-				fprintf(stderr,"%s",msg.payload.str);
-				exit(1);
-            case DISTRIBUTION:
-                register_cards(msg,server_socket);
-                break;
+                            fprintf(stderr,"%s",msg.payload.str);
+                            exit(1);
+                        case DISTRIBUTION:
+                            register_cards(msg,server_socket);
+                            break;
 			case DISTRIBUTION_ECART:
 				/*TODO add ecart to cards*/
-				
-				break;
+                            add_ecart(msg);
+                            printf("Ecart reçu\n");
+                            print_tab_color(msg.payload.ecart, SIZE_ECART);
+                            break;
 			case DEMANDE_CARTE:
 				//TODO
 				break;
@@ -112,6 +125,7 @@ void register_cards(Message msg, int socket){
     our_cards=deck.cards;
     print_tab_color(our_cards,nbr);
     lire_remove_emplacements(m.payload.ecart,our_cards,&nbr,SIZE_ECART);
+    size=nbr;
     m.action=ENVOI_ECART;
    
     send_message(m,socket);
@@ -128,6 +142,7 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
     /*Entrée des cartes*/
     printf("Nous allez maintenant choisir l'écart.\nEntrer l'emplacement des %d cartes de l'écart (en commancant par 1)\n",SIZE_ECART);
     printf("usage->1-2-3 ...\n");
+    /*validation du bon format*/
     do{
         if(invalide){
             printf("\nInvalide, recommencer\n");
@@ -139,7 +154,7 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
         tab[0]=atoi(token);
         i=1;
         
-        /*validation du bon format*/
+        
         while(i<nbr && token!=NULL){
             token=strtok(NULL,"-");
             if(token!=NULL){
@@ -182,6 +197,5 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
             j++;
         }
     }
-    source=new_source;
-    
+    source=new_source;    
 }
