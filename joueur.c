@@ -82,9 +82,9 @@ void get_request(int server_socket){
 			case INSCRIPTIONKO:
 				fprintf(stderr,"%s",msg.payload.str);
 				exit(1);
-                        case DISTRIBUTION:
-                            register_cards(msg,server_socket);
-                            break;
+            case DISTRIBUTION:
+                register_cards(msg,server_socket);
+                break;
 			default:
 				perror("action invalide");
                 exit(1);

@@ -5,4 +5,5 @@
 !*.*
 *.o
 *.tar
-old/ipc.c
+old/*
+old2/*

@@ -60,10 +60,10 @@ typedef struct dist{
 /*Union of what a payload can be*/
 union Payload{
 	/*distribution*/
-        Dist dist;  
+    Dist dist;  
 	
 	/*ecart*/
-	Card ecart[5];
+	Card ecart[SIZE_ECART];
 	
 	/*jouer une carte*/
 	Card carte;

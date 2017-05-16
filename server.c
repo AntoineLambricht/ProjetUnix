@@ -84,7 +84,6 @@ int main(int argc,char** argv){
 				fprintf(stderr,"Connection from %s %d\n",inet_ntoa(clientAdress.sin_addr), ntohs(clientAdress.sin_port));
 				if(playerCount<MAX_PLAYERS && !playing){
 					players[playerCount++].socket = clientSkt;
-					/*shm_ptr->nbPlayers = playerCount;*/
 					ecrirePlayers(players,playerCount);
 					if(playerCount == 2){
 						fprintf(stderr,"Timer start\n");
@@ -102,7 +101,6 @@ int main(int argc,char** argv){
 					if (receive_msg(&msg, players[i].socket)) {
 						process(&players[i],&msg,players,playerCount);
 					} else {
-						/*remove player au lieu de exit*/
 						fprintf(stderr,"Removing player \n");
 						removePlayer(players,&playerCount,i);
 						for (j = 0; j < MAX_PLAYERS; j++){
@@ -117,7 +115,7 @@ int main(int argc,char** argv){
 			switch(game_state){
 				case 0:
 					distribution(players,playerCount,cartes);
-                                        game_state=1;
+                    game_state=1;
 					break;
 				default:
 					break;
@@ -242,22 +240,22 @@ void melanger(Card cartes[]){
 }
 
 void distribution(player players[],int playerCount,Card cartes[]){
-        Message deck;
-        Dist dist;
-        Card *cartes_player;
+    Message deck;
+    Dist dist;
+    Card *cartes_player;
 	int i, n = NB_CARDS/playerCount;
-        int x,j=0;
-        cartes_player=malloc(n*sizeof(MAX_PLAYERS));
+    int x,j=0;
+    cartes_player=malloc(n*sizeof(Card));
         
-        for(i=0;i<playerCount;i++){
-            memcpy(cartes_player,cartes+j,n*sizeof(Card));
-            dist.nbr=n;
-            for(x=0;x<n;x++){
-                dist.cards[x]=cartes_player[x];
-            }
-            deck.action = DISTRIBUTION;
-            deck.payload.dist =dist;
-            send_message(deck,players[i].socket);
-            j+=n;
+    for(i=0;i<playerCount;i++){
+        memcpy(cartes_player,cartes+j,n*sizeof(Card));
+        dist.nbr=n;
+        for(x=0;x<n;x++){
+            dist.cards[x]=cartes_player[x];
         }
+        deck.action = DISTRIBUTION;
+        deck.payload.dist =dist;
+        send_message(deck,players[i].socket);
+        j+=n;
+    }
 }
