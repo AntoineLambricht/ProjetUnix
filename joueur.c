@@ -56,10 +56,27 @@ int receive_msg(Message *msg, int fd) {
 
 
 void choose_card(Message msg, int socket){
+    int couleur, contains;
     Pli* pli=lirePlis();
+    couleur=pli->pli[0].couleur;
+    contains = contains_color(couleur);
     lire_remove_emplacements(&msg.payload.carte,our_cards,&our_size,1);
+    while(couleur!=0 && couleur!=msg.payload.carte.couleur && contains){
+        printf("Cette carte n'est pas de la bonne couleur\n");
+        lire_remove_emplacements(&msg.payload.carte,our_cards,&our_size,1);
+    }
     msg.action=REPONSE_CARTE;
     send_message(msg,socket);
+}
+
+int contains_color(int couleur){
+    Card *q;
+    for(q=our_cards;q-our_cards<our_size;q++){
+        if(q->couleur==couleur){
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 void get_request(int server_socket){

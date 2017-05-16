@@ -25,4 +25,8 @@ void add_ecart(Message msg);
 
 void choose_card(Message msg, int socket);
 
+int contains_color(int couleur);
+
+void choose_card(Message msg, int socket);
+
 #endif
