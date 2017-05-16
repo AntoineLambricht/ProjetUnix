@@ -134,8 +134,8 @@ void get_request(int server_socket){
 			case DEMANDE_POINTS:
 				//TODO
 				break;
-			case ENVOI_PLI:
-				//TODO
+			case PLI_UPDATE:
+                            printf("UPDATE NOT IMPL");
 				break;
 			case ALERTE_FIN_PARTIE:
 				//TODO
@@ -171,6 +171,7 @@ void register_cards(Message msg, int socket){
     int nbr = deck.nbr;
     our_cards=deck.cards;
     print_tab_color(our_cards,nbr);
+    printf("Vous allez maintenant choisir l'ecart\n");
     lire_remove_emplacements(m.payload.ecart,our_cards,&nbr,SIZE_ECART);
     our_size=nbr;
     m.action=ENVOI_ECART;
@@ -187,7 +188,7 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
     int invalide=FALSE;
     char * token;
     /*Entrée des cartes*/
-    printf("Nous allez maintenant choisir l'écart.\nEntrer l'emplacement des %d cartes de l'écart (en commancant par 0)\n",SIZE_ECART);
+    printf("Entrer l'emplacement des %d cartes (en commancant par 0)\n",SIZE_ECART);
     printf("usage->1-2-3 ...\n");
     /*validation du bon format*/
     do{
