@@ -8,6 +8,7 @@
 Card* our_cards;
 int our_size;
 int main(int argc,char** argv){
+	
 	int client_socket,port;
 	struct hostent *host;
     
@@ -55,11 +56,13 @@ int receive_msg(Message *msg, int fd) {
 
 
 
-void choose_card(Message msg, int socket){
+void choose_card(int socket){
+	Message msg;
     int couleur, contains;
-    Pli* pli=lirePlis();
-    couleur=pli->pli[0].couleur;
+    Card* pli = lirePlis();
+    couleur=pli[0].couleur;
     contains = contains_color(couleur);
+	printf("Couleur : %d",couleur);
     if(couleur!=0){
         char *couleur_str;
         switch(couleur){
@@ -88,6 +91,7 @@ void choose_card(Message msg, int socket){
         lire_remove_emplacements(&msg.payload.carte,our_cards,&our_size,1);
     }
     msg.action=REPONSE_CARTE;
+	fprintf(stderr,"Carte envoyée : %d couleur %d",msg.payload.carte.num,msg.payload.carte.couleur);
     send_message(msg,socket);
 }
 
@@ -106,36 +110,38 @@ int contains_color(int couleur){
 
 void get_request(int server_socket){
 	Message msg;
-        int couleur_payoo;
+    int couleur_payoo;
 	if (receive_msg(&msg,server_socket)){
 		fprintf(stderr,"Message action from server :%d\n",msg.action);
-		
-		switch(msg.action){
+		int action = msg.action;
+		switch(action){
 			case INSCRIPTIONKO:
-                            fprintf(stderr,"%s",msg.payload.str);
-                            exit(1);
-                        case DISTRIBUTION:
-                            register_cards(msg,server_socket);
-                            break;
-			case DISTRIBUTION_ECART:
-				/*TODO add ecart to cards*/
-                            add_ecart(msg);
-                            printf("Ecart reçu\n");
-                            print_tab_color(msg.payload.ecart, SIZE_ECART);
-                            break;
-                        case PAPAYOO:
-                            couleur_payoo=msg.payload.papayoo;
-                            break;
+                fprintf(stderr,"%s",msg.payload.str);
+                exit(1);
+            case DISTRIBUTION:
+                register_cards(msg,server_socket);
+                break;
+			case DISTRIBUTION_ECART:;
+				int new_size;
+				new_size=MAX_CARD_BY_PLAYER;
+				memcpy(our_cards+our_size,msg.payload.ecart,sizeof(Card)*SIZE_ECART);
+				our_size=new_size;
+                printf("Ecart reçu\n");
+                print_tab_color(msg.payload.ecart, SIZE_ECART);
+                break;
+            case PAPAYOO:
+                couleur_payoo=msg.payload.papayoo;
+                break;
 			case DEMANDE_CARTE:
-                            printf("Vos cartes\n");
-                            print_tab_color(our_cards, our_size);
-                            choose_card(msg,server_socket);
-                            break;
+                printf("Vos cartes\n");
+                print_tab_color(our_cards, our_size);
+                choose_card(server_socket);
+                break;
 			case DEMANDE_POINTS:
 				//TODO
 				break;
 			case PLI_UPDATE:
-                            printf("UPDATE NOT IMPL");
+                fprintf(stderr,"UPDATE PLI\n"); 
 				break;
 			case ALERTE_FIN_PARTIE:
 				//TODO
@@ -248,13 +254,3 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
     source=new_source;    
 }
 
-
-void add_ecart(Message msg){
-    int new_size;
-    Card new_deck[our_size+SIZE_ECART];
-    new_size=our_size+SIZE_ECART;
-    memcpy(new_deck,our_cards,sizeof(Card)*our_size);
-    memcpy(new_deck+our_size,msg.payload.ecart,sizeof(Card)*SIZE_ECART);
-    our_size=new_size;
-    our_cards=new_deck;
-}

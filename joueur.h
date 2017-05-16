@@ -21,12 +21,8 @@ void register_cards(Message msg, int socket);
 
 void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr);
 
-void add_ecart(Message msg);
-
-void choose_card(Message msg, int socket);
-
 int contains_color(int couleur);
 
-void choose_card(Message msg, int socket);
+void choose_card(int socket);
 
 #endif

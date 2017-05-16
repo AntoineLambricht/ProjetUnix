@@ -15,6 +15,9 @@
 #include 	<signal.h>
 #include 	<sys/time.h>
 #include 	<time.h>
+
+#define ALARM 10
+
 /*game_state variables*/
 #define START_ROUND 0
 #define	WAIT_FOR_ECART 1
@@ -30,6 +33,8 @@
 #define	SEND_DEMEND 0
 #define WAIT_RESPONSE 1
 #define END_PLAYER_TURN 2
+
+
 
 
 

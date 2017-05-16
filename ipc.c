@@ -85,7 +85,7 @@ void lirePoints(){
 }
 
 /*read plis in shared memory*/
-Pli* lirePlis(){
+Card* lirePlis(){
 	int shmid,i;
 	key_t key;
 	memStruct* data;
@@ -99,12 +99,12 @@ Pli* lirePlis(){
   		exit(1);
 	}
 	
-	/*for(i = 0;i<data->nbPlayers;i++){
+	for(i = 0;i<data->nbPlayers;i++){
 		fprintf(stderr,"Carte %d: num %d - couleur %d ",i,data->plis[i].num,data->plis[i].couleur);
-	}*/
-        return data->plis;
-	readUp();
+	}
         
+	readUp();
+    return data->plis;
 }
 
 /* algorithme du banquier pour la lecture*/

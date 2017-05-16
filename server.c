@@ -123,7 +123,7 @@ int main(int argc,char** argv){
 								
 								if(playerCount == 2){
 									fprintf(stderr,"Timer start\n");
-									alarm(30);
+									alarm(ALARM);
 								}
 							}							
 							//sinon on lui envoie un message
@@ -175,13 +175,14 @@ int main(int argc,char** argv){
 							case REPONSE_CARTE:
 								
 								pli[i]=msg.payload.carte;
+								print_tab_color(pli,playerCount);
 								ecrirePlis(pli);
 								//send to all player that the pli have changed in the shared memory
 								int k;
 								Message m;
 								m.action = PLI_UPDATE;
 								for(k = 0;k<playerCount;k++){
-									send_message(m,players[i].socket);
+									send_message(m,players[k].socket);
 								}
 								
 								player_turn_state = END_PLAYER_TURN;
@@ -213,7 +214,7 @@ int main(int argc,char** argv){
 					distribution(players,playerCount,cartes);
                     game_state=WAIT_FOR_ECART;
 					first_player = 0;
-					turnCounter = 0;
+					turnCounter = NB_CARDS/playerCount;
 					break;
 				case WAIT_FOR_ECART: 
 				
@@ -237,17 +238,22 @@ int main(int argc,char** argv){
 						case INIT_TURN:
 						
 							player_to_play = first_player;
+							
+							/*test*/
+							memset(&pli,0,sizeof(Card)*playerCount);
+							ecrirePlis(pli);
+							
 							turn_state = START_TURN;
 							break;
 						case START_TURN:
 						
 							switch(player_turn_state){
 								case SEND_DEMEND:;
-									
+									fprintf(stderr,"SEND DEMAND");
 									Message demandeCarte;
 									demandeCarte.action = DEMANDE_CARTE;
 									send_message(demandeCarte,players[player_to_play].socket);
-									game_state = WAIT_RESPONSE;
+									player_turn_state = WAIT_RESPONSE;
 									break;
 								case WAIT_RESPONSE:
 								
@@ -255,6 +261,8 @@ int main(int argc,char** argv){
 								case END_PLAYER_TURN:
 								
 									/*si tout les joueurs on joué, fin du tour*/
+									fprintf(stderr,"Player %d\n",player_to_play);
+									//TODO USE player turn counter
 									if(player_to_play == playerCount-1){
 										turn_state = END_TURN;
 									}else{
@@ -266,10 +274,32 @@ int main(int argc,char** argv){
 							}
 							break;
 						case END_TURN:
-						
-							turnCounter++;
-							//TODO envoyer plis
-							if(turnCounter == NB_CARDS/playerCount){
+							fprintf(stderr,"END_TURN");
+							turnCounter--;
+							int j;
+							int couleur = pli[first_player].couleur;
+							int max = 0;
+							int looser;
+							/*ici on décide qui à perdu*/
+							for(j=0;j<playerCount;j++){
+								if(pli[j].couleur == couleur){
+									if(pli[j].num > max){
+										max = pli[j].num;
+										looser=j;
+									}
+								}
+							}
+							/*Creation du message*/
+							Pli pli_to_send;
+							pli_to_send.nbr = playerCount;
+							/*pli_to_send.pli = pli;*/
+							Message envoiPli;
+							envoiPli.action = ENVOI_PLI;
+							envoiPli.payload.pli = pli_to_send;
+							
+							send_message(envoiPli,players[looser].socket);					
+							
+							if(turnCounter == 0){
 								game_state = END_ROUND;
 							}
 							break;
@@ -288,7 +318,7 @@ int main(int argc,char** argv){
 					playing = TRUE;
 
 				}else{
-					alarm(30);
+					alarm(ALARM);
 				}
 			}
 		}

@@ -42,7 +42,7 @@ int initSharedMemory(int is_server);
 void ecrirePlayers(player newPlayers[MAX_PLAYERS],int newNbPlayers);
 void ecrirePlis(Card newPlis[MAX_PLAYERS]);
 void lirePoints();
-Pli* lirePlis();
+Card* lirePlis();
 
 void init_semaphore(int is_server);
 int semaphore_up(int semaphore);
