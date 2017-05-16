@@ -26,6 +26,8 @@ int main(int argc,char** argv){
 	int server_socket,port,highestFd,playerCount = 0;
 	int playing = FALSE;
 	int game_state = 0;
+	int turn_state = 0;
+	int player_turn_state = 0;
 	int ecartCount = 0;
 	struct timeval timeout;
 	struct sigaction timer;
@@ -169,7 +171,7 @@ int main(int argc,char** argv){
 								break;
 							case REPONSE_CARTE:
 								pli[i]=msg.payload.carte;
-								ecrirePli(pli);
+								ecrirePlis(pli);
 								//TODO changer le game state
 								break;
 							case REPONSE_POINTS:

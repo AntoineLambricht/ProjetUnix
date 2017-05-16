@@ -66,7 +66,7 @@ typedef struct dist{
 typedef struct pli{
 	unsigned char nbr;
 	Card pli[MAX_PLAYERS];
-} Pli
+} Pli;
 
 /*Union of what a payload can be*/
 union Payload{
