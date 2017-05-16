@@ -34,6 +34,9 @@ int main(int argc,char** argv){
 	fd_set fdset;
 	Message message;
 	Card pli[MAX_PLAYERS];
+	int player_to_play;
+	int first_player;
+	int turnCounter;
 	
 	initSharedMemory(TRUE);
 	init_semaphore(TRUE);
@@ -170,9 +173,18 @@ int main(int argc,char** argv){
 								}
 								break;
 							case REPONSE_CARTE:
+								
 								pli[i]=msg.payload.carte;
 								ecrirePlis(pli);
-								//TODO changer le game state
+								//send to all player that the pli have changed in the shared memory
+								int k;
+								Message m;
+								m.action = PLI_UPDATE;
+								for(k = 0;k<playerCount;k++){
+									send_message(m,players[i].socket);
+								}
+								
+								player_turn_state = END_PLAYER_TURN;
 								break;
 							case REPONSE_POINTS:
 								//TODO
@@ -195,43 +207,78 @@ int main(int argc,char** argv){
 		}
 		if(playing){
 			switch(game_state){
-				//debut de manche
-				case 0:
+				
+				case START_ROUND:
+				
 					distribution(players,playerCount,cartes);
-                    game_state=1;
+                    game_state=WAIT_FOR_ECART;
+					first_player = 0;
+					turnCounter = 0;
 					break;
-				//choix et redistribution des écarts
-				case 1:
-					// ne rien faire ? 
+				case WAIT_FOR_ECART: 
+				
 					break;
-				//tirage au sort du papayoo
-				case 2:
-					//TODO
+				case RANDOM_PAPAYOO:
+					
+					srand(time(NULL));
+					int i;
+					int couleur = (rand()%4)+1;
+					Message m;
+					m.action = PAPAYOO;
+					m.payload.papayoo = couleur;
+					for(i = 0;i<playerCount;i++){
+						send_message(m,players[i].socket);
+					}
+					game_state = TURN;
 					break;
-				//tours
-				case 3:
-					//TODO
+				case TURN:
+				
 					switch(turn_state){
-						//debut du tour
-						case 1:
+						case INIT_TURN:
+						
+							player_to_play = first_player;
+							turn_state = START_TURN;
+							break;
+						case START_TURN:
+						
 							switch(player_turn_state){
-								//waiting for response ?
-								case 1:
-									break;
-								//get response , switch player turn
-								case 2:
+								case SEND_DEMEND:;
 									
+									Message demandeCarte;
+									demandeCarte.action = DEMANDE_CARTE;
+									send_message(demandeCarte,players[player_to_play].socket);
+									game_state = WAIT_RESPONSE;
+									break;
+								case WAIT_RESPONSE:
+								
+									break;
+								case END_PLAYER_TURN:
+								
+									/*si tout les joueurs on joué, fin du tour*/
+									if(player_to_play == playerCount-1){
+										turn_state = END_TURN;
+									}else{
+										player_to_play++;
+										player_turn_state = SEND_DEMEND;
+									}
 									break;
 								
 							}
 							break;
-						//fin du tour et envois du plis 
-						case 2:
+						case END_TURN:
+						
+							turnCounter++;
+							//TODO envoyer plis
+							if(turnCounter == NB_CARDS/playerCount){
+								game_state = END_ROUND;
+							}
 							break;
 							
 					}
 					break;
-				
+				case END_ROUND:
+					//TODO demander point
+					break;
 				default:
 					break;
 			}			

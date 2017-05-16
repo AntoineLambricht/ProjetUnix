@@ -4,6 +4,9 @@
 	Serie:		1
 */
 
+#if ! defined (_SERVER_H_)
+#define _SERVER_H_
+
 #include "socket.h"
 #include "ipc.h"
 #include "util.h"
@@ -12,9 +15,24 @@
 #include 	<signal.h>
 #include 	<sys/time.h>
 #include 	<time.h>
+/*game_state variables*/
+#define START_ROUND 0
+#define	WAIT_FOR_ECART 1
+#define	RANDOM_PAPAYOO 2
+#define TURN 3
+#define END_ROUND 4
+/*turn_state*/
+#define INIT_TURN 0
+#define	START_TURN 1
+#define	END_TURN 2
 
-#if ! defined (_SERVER_H_)
-#define _SERVER_H_
+/*player_turn_state*/
+#define	SEND_DEMEND 0
+#define WAIT_RESPONSE 1
+#define END_PLAYER_TURN 2
+
+
+
 
 
 void melanger(Card cartes[]);

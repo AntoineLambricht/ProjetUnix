@@ -30,6 +30,7 @@
 #define MESSAGE_SIZE 255
 
 #define INSCRIPTION 0
+#define PAPAYOO 1
 #define INSCRIPTIONKO 2
 #define DISTRIBUTION 3
 #define DISTRIBUTION_ECART 4
@@ -40,6 +41,7 @@
 #define ENVOI_ECART 9
 #define REPONSE_CARTE 10
 #define REPONSE_POINTS 11
+#define PLI_UPDATE 12
 
 #define PIQUE 1
 #define TREFLE 2
@@ -91,6 +93,9 @@ union Payload{
 	
 	/*Envois plis*/
 	Pli pli;
+	
+	/*couleur du papayoo*/
+	unsigned char papayoo;
 };
 
 typedef struct message{
