@@ -107,28 +107,81 @@ Message inscription(){
 
 void register_cards(Message msg, int socket){
     Message m;
-    int res,i;
-    Card ecart[SIZE_ECART];
     Dist deck= msg.payload.dist;
     int nbr = deck.nbr;
     our_cards=deck.cards;
     print_tab_color(our_cards,nbr);
-    printf("Nous allez maintenant choisir l'écart.\nEntrer l'emplacement des %d cartes de l'écart (en commancant par 1)\n",SIZE_ECART);
-    printf("usage->1 2 3 ...\n");
-    fflush(stdin);
-    for(i=0;i<SIZE_ECART;i++){
-        printf("Entrer la %d carte", SIZE_ECART-i);
-        scanf("%d",&res);
-        ecart[i]=our_cards[res-1];
-    }
-    for(i=0;i<SIZE_ECART;i++){
-        m.payload.ecart[i]=ecart[i];
-    }
-    /*lire_remove_emplacements(m.payload.ecart,our_cards,nbr,SIZE_ECART);*/
+    lire_remove_emplacements(m.payload.ecart,our_cards,&nbr,SIZE_ECART);
     m.action=ENVOI_ECART;
    
     send_message(m,socket);
     
+}
+
+
+void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
+    char l[nbr*2];
+    Card new_source[*size-nbr];
+    int i,j,x,tab[nbr];
+    int invalide=FALSE;
+    char * token;
+    /*Entrée des cartes*/
+    printf("Nous allez maintenant choisir l'écart.\nEntrer l'emplacement des %d cartes de l'écart (en commancant par 1)\n",SIZE_ECART);
+    printf("usage->1-2-3 ...\n");
+    do{
+        if(invalide){
+            printf("\nInvalide, recommencer\n");
+        }
+        invalide=FALSE;
+        scanf("%s",l);
+        printf("\n%s\n",l);
+        token=strtok(l,"-");
+        tab[0]=atoi(token);
+        i=1;
+        
+        /*validation du bon format*/
+        while(i<nbr && token!=NULL){
+            token=strtok(NULL,"-");
+            if(token!=NULL){
+                tab[i]=atoi(token);
+                i++;
+            }
+        }
+        if(i!=6){
+            invalide=TRUE;
+            break;
+        }
+        
+        /*Verification des doublons et de l'absence de la carte*/
+        for(i=0;i<nbr;i++){
+            for(j=i;j<nbr;j++){
+                if(tab[i]==tab[j] || tab[i]>*size){
+                    invalide=TRUE;
+                }
+            }
+        }
     
+    }while(invalide);
+    
+    /*copie de l'ecart dans le buffer*/
+    for(i=0;i<nbr;i++){
+        buffer[i]=source[tab[i]];
+    }
+    /*réécriture de la source sans l'ecart*/
+    *size=*size-nbr;
+    j=0;
+    i=0;
+    x=0;
+    while(i<*size){
+        if(j==tab[x]){
+            j++;
+            x++;
+        }else{
+            new_source[i]=source[j];
+            i++;
+            j++;
+        }
+    }
+    source=new_source;
     
 }

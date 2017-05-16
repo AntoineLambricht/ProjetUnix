@@ -19,4 +19,6 @@ void get_request(int client_socket);
 
 void register_cards(Message msg, int socket);
 
+void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr);
+
 #endif

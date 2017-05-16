@@ -10,7 +10,7 @@
 #include    <stdio.h>
 #include    <stdlib.h>
 #include    <string.h>
-#include	<unistd.h>
+#include    <unistd.h>
 
 
 #define SYS(call) ((call) == -1) ? (perror(#call ": ERROR"),exit(1)) : 0
@@ -98,7 +98,7 @@ typedef struct message{
 	union Payload payload;
 }Message;
 
-void lire_remove_emplacements(Card * buffer,Card * source,int size,int nbr);
+
 
 
 
