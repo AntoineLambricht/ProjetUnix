@@ -37,11 +37,11 @@ void initiateServer(int *server_socket,int port){
 		exit(EXIT_FAILURE);
 	}
 
-	/*fprintf(stderr,"Server initiate at %s %d\n",inet_ntoa(my_address.sin_addr), ntohs(my_address.sin_port));*/
+	fprintf(stderr,"Server initiate at %s %d\n",inet_ntoa(my_address.sin_addr), ntohs(my_address.sin_port));
 
 }
 
-void initiateConnection(int *client_socket,struct hostent *host,int port){
+void initiateConnection(int *client_socket,struct hostent *host,int port,Message msg){
 	struct sockaddr_in server_address;
 	if((*client_socket = socket(AF_INET,SOCK_STREAM,0))==-1){
 		perror("Erreur socket server");
@@ -57,4 +57,6 @@ void initiateConnection(int *client_socket,struct hostent *host,int port){
 		perror("client - connect");
         exit(1);
     }
+	
+	send_message(msg,*client_socket);
 }

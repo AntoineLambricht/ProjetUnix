@@ -15,7 +15,7 @@ void print_tab_color(Card *cards,int nb){
             printf(" ");
         }
         i++;
-        if(i==4){
+        if(i==5){
             printf("\n");
             i=0;
         }else{

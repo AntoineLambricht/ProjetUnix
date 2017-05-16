@@ -13,7 +13,7 @@
 #include "ipc.h"
 #include "color.h"
 
-void inscription();
+Message inscription();
 
 void get_request(int client_socket);
 

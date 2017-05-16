@@ -26,14 +26,20 @@
 #define MAX_CARD_BY_PLAYER 30
 #define SIZE_ECART 5
 
-
 #define NAME_SIZE 40
 #define MESSAGE_SIZE 255
 
 #define INSCRIPTION 0
-#define NAME_TAKEN 1
 #define INSCRIPTIONKO 2
 #define DISTRIBUTION 3
+#define DISTRIBUTION_ECART 4
+#define DEMANDE_CARTE 5
+#define ENVOI_PLI 6
+#define DEMANDE_POINTS 7
+#define ALERTE_FIN_PARTIE 8
+#define ENVOI_ECART 9
+#define REPONSE_CARTE 10
+#define REPONSE_POINTS 11
 
 #define PIQUE 1
 #define TREFLE 2

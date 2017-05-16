@@ -24,18 +24,13 @@ int main(int argc,char** argv){
 	initSharedMemory(FALSE);
 	init_semaphore(FALSE);
 
-
-	initiateConnection(&client_socket,host,port);
-	
+	//initialise la connection et l'inscription
+	Message msg = inscription();
+	initiateConnection(&client_socket,host,port,msg);
 	fprintf(stderr,"Connected\n");
 	
-	inscription(client_socket);
-
 	while(TRUE){
-		/*fprintf(stderr,"Nb players = %d\n",shm_ptr->nbPlayers);*/
-		lirePoints();
 		get_request(client_socket);
-
 	}
 	close(client_socket);
 	return EXIT_SUCCESS;
@@ -55,20 +50,7 @@ int receive_msg(Message *msg, int fd) {
 	return TRUE;
 }
 
-void inscription(int server_socket){
-	char name[NAME_SIZE];
-	Message inscription;
-	
-	printf("Enter your name > ");
-	scanf("%s", name);
-	fflush(stdin);
-	fflush(stdout);
-				
-	inscription.action = INSCRIPTION;
-	strcpy(inscription.payload.name,name);
-				
-	send_message(inscription, server_socket);
-}
+
 
 void get_request(int server_socket){
 	Message msg;
@@ -76,9 +58,6 @@ void get_request(int server_socket){
 		fprintf(stderr,"Message action from server :%d\n",msg.action);
 		
 		switch(msg.action){
-			case NAME_TAKEN:
-				inscription(server_socket);
-				break;
 			case INSCRIPTIONKO:
 				fprintf(stderr,"%s",msg.payload.str);
 				exit(1);
@@ -93,6 +72,21 @@ void get_request(int server_socket){
 		exit(1);
 	}
 
+}
+
+Message inscription(){
+	char name[NAME_SIZE];
+	Message inscription;
+	
+	printf("Enter your name > ");
+	scanf("%s", name);
+	fflush(stdin);
+	fflush(stdout);
+				
+	inscription.action = INSCRIPTION;
+	strcpy(inscription.payload.name,name);
+				
+	return inscription;
 }
 
 void register_cards(Message msg, int socket){
@@ -115,7 +109,7 @@ void register_cards(Message msg, int socket){
         m.payload.ecart[i]=ecart[i];
     }
     /*lire_remove_emplacements(m.payload.ecart,our_cards,nbr,SIZE_ECART);*/
-    m.action=DISTRIBUTION;
+    m.action=ENVOI_ECART;
    
     send_message(m,socket);
     

@@ -25,6 +25,6 @@ void send_message(Message m, int socket);
 
 void initiateServer(int *server_socket,int port);
 
-void initiateConnection(int *client_socket,struct hostent *host,int port);
+void initiateConnection(int *client_socket,struct hostent *host,int port,Message msg);
 
 #endif

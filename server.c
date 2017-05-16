@@ -21,10 +21,12 @@ void timer_handler(int signal){
 int main(int argc,char** argv){
 	/*char buffer[256];*/
 	Card cartes[NB_CARDS];
+	Card ecarts[MAX_PLAYERS][SIZE_ECART];
 	player players[MAX_PLAYERS] = {{0}};
 	int server_socket,port,highestFd,playerCount = 0;
 	int playing = FALSE;
 	int game_state = 0;
+	int ecartCount = 0;
 	struct timeval timeout;
 	struct sigaction timer;
 	fd_set fdset;
@@ -77,29 +79,98 @@ int main(int argc,char** argv){
 		action = select(8,&fdset,NULL,NULL,&timeout);
 
 		if(action >0){
+			//si le socket d'inscription est modifié
 			if(FD_ISSET(server_socket,&fdset)){
+				
 				struct sockaddr_in clientAdress;
 				int len = sizeof(clientAdress);
+				
 				int clientSkt = accept(server_socket,(struct sockaddr *)&clientAdress,(socklen_t*)&len);
+			
 				fprintf(stderr,"Connection from %s %d\n",inet_ntoa(clientAdress.sin_addr), ntohs(clientAdress.sin_port));
+			
+				
+				
 				if(playerCount<MAX_PLAYERS && !playing){
-					players[playerCount++].socket = clientSkt;
-					ecrirePlayers(players,playerCount);
-					if(playerCount == 2){
-						fprintf(stderr,"Timer start\n");
-						alarm(30);
+					//inscription de l'utilisateur
+					Message msg;
+					Message nameTaken;
+					if(receive_msg(&msg,clientSkt)){
+						if(msg.action == INSCRIPTION){
+							int i,nameOK;
+							nameOK = TRUE;
+							//test si un joueur à déjà ce nom
+							for(i=0;i<playerCount;i++){
+								if(strcmp(players[i].name,msg.payload.name)==0){
+									nameOK = FALSE;
+									break;
+								}
+							}
+							//si le nom est bon , on enregistre le joueur 
+							if(nameOK){
+								strcpy(players[playerCount].name, msg.payload.name);
+								players[playerCount++].socket = clientSkt;
+								
+								
+								ecrirePlayers(players,playerCount);
+								fprintf(stderr,"Player %s à été inscrit (socket : %d) \n",players[playerCount-1].name,players[playerCount-1].socket);
+								
+								if(playerCount == 2){
+									fprintf(stderr,"Timer start\n");
+									alarm(30);
+								}
+							}							
+							//sinon on lui envoie un message
+							else{
+								nameTaken.action = INSCRIPTIONKO;
+								strcpy(nameTaken.payload.str,"Inscription refusé : Nom déjà pris\n");
+								send_message(nameTaken,clientSkt);
+								close(clientSkt);
+							}
+						}
+					}else{
+						close(clientSkt);
 					}
+					
 				}else{
 					message.action = INSCRIPTIONKO;
 					strcpy(message.payload.str,"Impossible de s'inscrire pour le moment\n");
 					send_message(message,clientSkt);
 				}
 			}
+			// pour chaque joueur enregistré , on test si son socket à été modifié
 			for (i = 0; i < playerCount; i++) {
 				if (FD_ISSET(players[i].socket, &fdset)) {
+					//si oui , on lis le message 
 					Message msg;
-					if (receive_msg(&msg, players[i].socket)) {
-						process(&players[i],&msg,players,playerCount);
+					Message distribution_ecart;
+					if (receive_msg(&msg, players[i].socket)) {					
+						switch(msg.action){
+							
+							case ENVOI_ECART:
+								/*ecart_redistribution(playerCount,players,p,msg->payload,&ecartCount);*/
+								memcpy(&ecarts[i],msg.payload.ecart,sizeof(Card)*SIZE_ECART);
+								ecartCount++;
+								fprintf(stderr,"Ecart reçu de %s\n",players[i].name);
+								if(ecartCount == playerCount){
+									/*distribution des écarts*/
+									fprintf(stderr,"Tout les écart on été reçu\n");
+									for (j = 0; j < playerCount; j++) {
+										distribution_ecart.action = DISTRIBUTION_ECART;
+										if(j==playerCount-1){
+											memcpy(distribution_ecart.payload.ecart,&ecarts[0],sizeof(Card)*SIZE_ECART);
+										}else{
+											memcpy(distribution_ecart.payload.ecart,&ecarts[j+1],sizeof(Card)*SIZE_ECART);
+										}
+										send_message(distribution_ecart,players[j]);
+									
+									}
+								}
+								break;
+							default:
+								perror("action invalide\n");
+								exit(1);
+						}
 					} else {
 						fprintf(stderr,"Removing player \n");
 						removePlayer(players,&playerCount,i);
@@ -153,45 +224,6 @@ void removePlayer(player players[],int* playerCount,int index){
 
 }
 
-void process(player* p, Message *msg ,player players[],int playerCount){
-    int i,nameOK;
-	Message nameTaken;
-	
-	/*exrtaire le nom et l action puis la traiter dans un swith
-	//seule action pour le moment = INSCRIPTION (0) où le but est d'enregistrer le nom de l'user*/
-        
-        switch(msg->action){
-            case INSCRIPTION:
-				nameOK = TRUE;
-                for(i=0;i<playerCount;i++){
-                    if(strcmp(players[i].name,msg->payload.name)==0){
-						nameOK = FALSE;
-                        break;
-                    }
-                }
-				if(nameOK){
-					sprintf(p->name,"%s",msg->payload.name);
-					fprintf(stderr,"player: %s successfully added\n",p->name);
-					ecrirePlayers(players,playerCount);
-				}else{
-					nameTaken.action = NAME_TAKEN;
-					send_message(nameTaken,p->socket);
-					fprintf(stderr,"player with socket :%d try to set name %s but allready taken\n",p->socket,msg->payload.name);
-				}
-                break;
-            case DISTRIBUTION:
-                ecart_redistribution(*msg);
-                break;
-            default:
-                perror("action invalide");
-                exit(1);
-        }
-
-}
-
-void ecart_redistribution(Message m){
-
-}
 
 int receive_msg(Message *msg, int fd) {
 	int bytes_received;
