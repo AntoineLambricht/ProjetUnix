@@ -23,4 +23,6 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr);
 
 void add_ecart(Message msg);
 
+void choose_card(Message msg, int socket);
+
 #endif

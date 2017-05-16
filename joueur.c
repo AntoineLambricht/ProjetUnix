@@ -55,11 +55,11 @@ int receive_msg(Message *msg, int fd) {
 
 
 
-void choose_card(Message msg){
-    Plis pli=lirePlis();
-    lire_remove_emplacements(msg.payload.carte,our_cards,our_size,1);
+void choose_card(Message msg, int socket){
+    Pli* pli=lirePlis();
+    lire_remove_emplacements(&msg.payload.carte,our_cards,&our_size,1);
     msg.action=REPONSE_CARTE;
-    send_message(msg,sever_socket);
+    send_message(msg,socket);
 }
 
 void get_request(int server_socket){
@@ -84,7 +84,7 @@ void get_request(int server_socket){
 			case DEMANDE_CARTE:
                             printf("Vos cartes\n");
                             print_tab_color(our_cards, our_size);
-                            choose_card(msg);
+                            choose_card(msg,server_socket);
                             break;
 			case DEMANDE_POINTS:
 				//TODO
