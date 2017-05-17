@@ -173,7 +173,6 @@ void choose_card(int socket, Card* our_cards, int *our_size){
     lire_remove_emplacements(c,our_cards,our_size,1);
     while(couleur!=0 && couleur!=c[0].couleur && contains){
         printf("Cette carte n'est pas de la bonne couleur\n");
-        printf("La bonne couleur est %s\n",couleur_str);
         lire_remove_emplacements(c,our_cards,our_size,1);
     }
     msg.payload.carte=c[0];
