@@ -66,18 +66,15 @@ int main(int argc,char** argv){
                     case PLI_UPDATE:
                         printf("\n\n\n\n");
                         lirePoints();
-                        Card* pli = lirePlis();
-                        i=MAX_PLAYERS;
-                        while(i>0 && pli[i].num==0){
-                            i--;
-                        }
-                        if(i<0){      
-                            printf("Pli vide \n");
-                        }else{
-                            printf("Sommet du pli: \n");
-                            print_color(pli[i]);
-                            printf("\n");
-                        }
+                        Pli pli = lirePlis();
+						i = 0;
+						while(i<pli.nbr && pli.pli[i].num != 0){
+							print_color(pli.pli[i]);
+							printf(" - ");
+							i++;
+						}
+						printf("\n");
+						/*print_tab_color(pli.pli,pli.nbr);*/
                         break;
                     case ALERTE_FIN_PARTIE:
                                         //TODO
@@ -117,7 +114,7 @@ void choose_card(int socket, Card* our_cards, int *our_size){
     Message msg;
     Card c [1];
     int couleur, contains;
-    Card* pli = lirePlis();
+    Card* pli = lirePlis().pli;
     couleur=pli[0].couleur;
     contains = contains_color(couleur, our_cards, *our_size);
     if(couleur!=0){

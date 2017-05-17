@@ -93,13 +93,11 @@ void lirePoints(){
 }
 
 /*read plis in shared memory*/
-Card* lirePlis(){
+Pli lirePlis(){
 	int shmid;
 	key_t key;
 	memStruct* data;
-	printf("en attente\n");
 	readDown();
-        printf("access\n");
 	key = KEY;
 	SYS(shmid = shmget(key,sizeof(memStruct),IPC_EXCL | 0644));
 
@@ -109,15 +107,17 @@ Card* lirePlis(){
 	}
         
 	readUp();
-        printf("out\n");
-    return data->plis;
+	Pli pli;
+	pli.nbr = data->nbPlayers;
+	memcpy(pli.pli,data->plis,sizeof(Card)*MAX_PLAYERS);
+    return pli;
 }
 
 /* algorithme du banquier pour la lecture*/
 void readDown(){
 	semaphore_down(MUTEX);
 	ecrireRc(lireRc()+1);
-	if(lireRc()==1)semaphore_down(BD);
+	if(lireRc()==1)semaphore_up(BD);
 	semaphore_up(MUTEX);
 }
 
@@ -206,6 +206,7 @@ int initRcMemory(int is_server){
   shmflg = (is_server) ? IPC_CREAT|0644 : 0644;
   key = KEY_SPACE_SEM;
   SYS(shmid = shmget(key,sizeof(int),shmflg));
+  
   return shmid;
 }
 

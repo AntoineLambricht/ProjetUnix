@@ -196,6 +196,7 @@ int main(int argc,char** argv){
 								print_tab_color(pli,playerCount);
 								ecrirePlis(pli);
 								//send to all player that the pli have changed in the shared memory
+								sleep(1);
 								int k;
 								Message m;
 								m.action = PLI_UPDATE;
