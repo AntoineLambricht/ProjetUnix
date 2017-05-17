@@ -90,7 +90,7 @@ int main(int argc,char** argv){
                                 winner=players[i];
                             }
                         }
-                        printf("\n%s remporte la manche avec %d points\n",players[i].name,players[i].points);
+                        printf("\n%s est en tête avec %d points\n",players[i].name,players[i].points);
                         break;
                     case PLI_UPDATE:
                         printf("\n\nUPDATE\n");
