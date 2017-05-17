@@ -57,8 +57,10 @@ int receive_msg(Message *msg, int fd) {
 
 
 void choose_card(int socket){
-	Message msg;
+    Message msg;
+    Card c [1];
     int couleur, contains;
+    printf("On est dans choose card\n");
     Card* pli = lirePlis();
     couleur=pli[0].couleur;
     contains = contains_color(couleur);
@@ -85,11 +87,12 @@ void choose_card(int socket){
         printf("La couleur est %s\n",couleur_str);
     }
     printf("Entrer l'emplacement de la carte que vous désirez placer\n");
-    lire_remove_emplacements(&msg.payload.carte,our_cards,&our_size,1);
+    lire_remove_emplacements(c,our_cards,&our_size,1);
     while(couleur!=0 && couleur!=msg.payload.carte.couleur && contains){
         printf("Cette carte n'est pas de la bonne couleur\n");
-        lire_remove_emplacements(&msg.payload.carte,our_cards,&our_size,1);
+        lire_remove_emplacements(c,our_cards,&our_size,1);
     }
+    msg.payload.carte=c[0];
     msg.action=REPONSE_CARTE;
 	fprintf(stderr,"Carte envoyée : %d couleur %d",msg.payload.carte.num,msg.payload.carte.couleur);
     send_message(msg,socket);
@@ -121,33 +124,34 @@ void get_request(int server_socket){
             case DISTRIBUTION:
                 register_cards(msg,server_socket);
                 break;
-			case DISTRIBUTION_ECART:;
-				int new_size;
-				new_size=MAX_CARD_BY_PLAYER;
-				memcpy(our_cards+our_size,msg.payload.ecart,sizeof(Card)*SIZE_ECART);
-				our_size=new_size;
+            case DISTRIBUTION_ECART:;
+		int new_size;
+		new_size=MAX_CARD_BY_PLAYER;
+		memcpy(our_cards+our_size,msg.payload.ecart,sizeof(Card)*SIZE_ECART);
+		our_size=new_size;
                 printf("Ecart reçu\n");
                 print_tab_color(msg.payload.ecart, SIZE_ECART);
                 break;
             case PAPAYOO:
                 couleur_payoo=msg.payload.papayoo;
                 break;
-			case DEMANDE_CARTE:
+            case DEMANDE_CARTE:
                 printf("Vos cartes\n");
                 print_tab_color(our_cards, our_size);
+                printf("On va vers choose card\n");
                 choose_card(server_socket);
                 break;
-			case DEMANDE_POINTS:
+            case DEMANDE_POINTS:
 				//TODO
-				break;
-			case PLI_UPDATE:
+		break;
+            case PLI_UPDATE:
                 fprintf(stderr,"UPDATE PLI\n"); 
-				break;
-			case ALERTE_FIN_PARTIE:
+		break;
+            case ALERTE_FIN_PARTIE:
 				//TODO
-				break;
-			default:
-				perror("action invalide");
+		break;
+            default:
+		perror("action invalide");
                 exit(1);
 		}
 	}else{
@@ -194,7 +198,7 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
     int invalide=FALSE;
     char * token;
     /*Entrée des cartes*/
-    printf("Entrer l'emplacement des %d cartes (en commancant par 0)\n",SIZE_ECART);
+    printf("Entrer l'emplacement des %d cartes (en commancant par 0)\n",nbr);
     printf("usage->1-2-3 ...\n");
     /*validation du bon format*/
     do{

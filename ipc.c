@@ -43,7 +43,7 @@ void ecrirePlayers(player newPlayers[MAX_PLAYERS],int newNbPlayers){
 
 /*writes the plis in shared memory*/
 void ecrirePlis(Card newPlis[MAX_PLAYERS]){
-	int shmid,i;
+	int shmid;
 	key_t key;
 	memStruct* data;
 
@@ -56,10 +56,10 @@ void ecrirePlis(Card newPlis[MAX_PLAYERS]){
   		exit(1);
 	}
 	
-	for(i = 0;i<MAX_PLAYERS;i++){
+	/*for(i = 0;i<MAX_PLAYERS;i++){
 		data->plis[i].num = newPlis[i].num;
 		data->plis[i].couleur = newPlis[i].couleur;
-	}
+	}*/
 	semaphore_up(BD);
 }
 
