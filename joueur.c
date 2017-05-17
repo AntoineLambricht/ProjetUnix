@@ -44,7 +44,6 @@ int main(int argc,char** argv){
             Message msg;
             int i,couleur_payoo;
                 if (receive_msg(&msg,server_socket)){
-                        fprintf(stderr,"Message action from server :%d\n",msg.action);
                         int action = msg.action;
                         switch(action){
                     case INSCRIPTIONKO:
@@ -103,7 +102,7 @@ int main(int argc,char** argv){
 										i++;
 						}
 						printf("\n");
-						/*print_tab_color(pli.pli,pli.nbr);*/
+						
                         break;
                     case ALERTE_FIN_PARTIE:
                         printf("Partie finie\n");
@@ -174,6 +173,7 @@ void choose_card(int socket, Card* our_cards, int *our_size){
     lire_remove_emplacements(c,our_cards,our_size,1);
     while(couleur!=0 && couleur!=c[0].couleur && contains){
         printf("Cette carte n'est pas de la bonne couleur\n");
+        printf("La bonne couleur est %s\n",couleur_str);
         lire_remove_emplacements(c,our_cards,our_size,1);
     }
     msg.payload.carte=c[0];
@@ -236,7 +236,7 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
     int invalide=FALSE;
     char * token;
     /*Entrée des cartes*/
-    printf("Entrer l'emplacement des %d cartes (en commancant par 0)\n",nbr);
+    printf("Entrer l'emplacement de(s) %d cartes (en commancant par 0)\n",nbr);
     printf("usage->1-2-3 ...\n");
     /*validation du bon format*/
     do{
