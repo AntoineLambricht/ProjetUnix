@@ -272,7 +272,7 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
     for(i=0;i<nbr;i++){
         buffer[i]=source[tab[i]];
     }
-    /*réécriture de la source sans l'ecart*/
+    /*réécriture de la source sans les cartes*/
     *size=*size-nbr;
     j=0;
     i=0;
@@ -287,6 +287,7 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
             j++;
         }
     }
-    source=new_source;    
+    //source=new_source;    
+    memcpy(source,new_source,*size*sizeof(Card));
 }
 
