@@ -8,7 +8,8 @@
 
 int main(int argc,char** argv){
 	Card our_cards[MAX_CARD_BY_PLAYER];
-        int our_size;
+        Card our_pli[MAX_CARD_BY_PLAYER];
+        int our_size,our_pli_size=0;
 	int server_socket,port;
 	struct hostent *host;
     
@@ -60,8 +61,20 @@ int main(int argc,char** argv){
                         print_tab_color(our_cards, our_size);
                         choose_card(server_socket,our_cards,&our_size);
                         break;
-                    case DEMANDE_POINTS:
-                                        //TODO
+                    case DEMANDE_POINTS:;
+                        int score=0;
+                        
+                        for(i=0;i<our_pli_size;i++){
+                            Card current=our_pli[i];
+                            if(current.couleur!=couleur_payoo && current.num!=CHIFFRE_PAYOO){
+                                score+=current.num;
+                            }else{
+                                score+=POINTS_PAYOO;
+                            }
+                        }
+                        msg.action=REPONSE_POINTS;
+                        msg.payload.points=score;
+                        send_message(msg, server_socket);
                         break;
                     case PLI_UPDATE:
                         printf("\n\n\n\n");
@@ -78,6 +91,10 @@ int main(int argc,char** argv){
                         break;
                     case ALERTE_FIN_PARTIE:
                                         //TODO
+                        break;
+                    case ENVOI_PLI:
+                        memcpy(our_pli+our_pli_size,msg.payload.dist.cards,sizeof(Card)*msg.payload.pli.nbr);
+                        our_pli_size+=msg.payload.dist.nbr;
                         break;
                     default:
                         perror("action invalide");
@@ -114,7 +131,8 @@ void choose_card(int socket, Card* our_cards, int *our_size){
     Message msg;
     Card c [1];
     int couleur, contains;
-    Card* pli = lirePlis().pli;
+    Card pli[MAX_PLAYERS];
+    pli= lirePlis().pli;
     couleur=pli[0].couleur;
     contains = contains_color(couleur, our_cards, *our_size);
     if(couleur!=0){
