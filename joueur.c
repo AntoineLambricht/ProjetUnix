@@ -103,10 +103,8 @@ int main(int argc,char** argv){
                         printf("Partie finie\n");
                         break;
                     case ENVOI_PLI:
-                        print_tab_color(our_pli,our_pli_size);
-                        printf("message");
                         memcpy(our_pli+our_pli_size,msg.payload.pli.pli,sizeof(Card)*msg.payload.pli.nbr);
-                        our_pli_size+=msg.payload.dist.nbr;
+                        our_pli_size+=msg.payload.pli.nbr;
                         break;
                     default:
                         perror("action invalide");

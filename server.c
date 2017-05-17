@@ -23,7 +23,7 @@ void quit_handler(int signal){
 }
 
 void shutdown_server(){
-	printf("Server shutdown...");
+	printf("Server shutdown...\n");
 	deleteSharedMemory(shmid);
 	/*closeSockets();*/
 	exit(0);
@@ -323,7 +323,17 @@ int main(int argc,char** argv){
 							if(turnCounter == 0){
 								game_state = END_ROUND;
 							}else{
-								first_player = looser;
+								player temp[MAX_PLAYERS];
+								int j=looser;
+								for(i=0;i<playerCount;i++){
+									temp[i]=players[j];
+									j++;
+									if(j==playerCount){
+										j = 0;
+									}
+								}
+								memcpy(players,temp,sizeof(player)*MAX_PLAYERS);
+								/*first_player = looser;*/
 								turn_state = INIT_TURN;
 							}
 							break;
