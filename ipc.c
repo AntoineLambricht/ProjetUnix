@@ -43,7 +43,7 @@ void ecrirePlayers(player newPlayers[MAX_PLAYERS],int newNbPlayers){
 
 /*writes the plis in shared memory*/
 void ecrirePlis(Card newPlis[MAX_PLAYERS]){
-	int shmid;
+	int shmid,i;
 	key_t key;
 	memStruct* data;
 
@@ -56,10 +56,10 @@ void ecrirePlis(Card newPlis[MAX_PLAYERS]){
   		exit(1);
 	}
 	
-	/*for(i = 0;i<MAX_PLAYERS;i++){
+	for(i = 0;i<MAX_PLAYERS;i++){
 		data->plis[i].num = newPlis[i].num;
 		data->plis[i].couleur = newPlis[i].couleur;
-	}*/
+	}
 	semaphore_up(BD);
 }
 
@@ -79,18 +79,20 @@ void lirePoints(){
 	}
 	
 	for(i = 0;i<data->nbPlayers;i++){
-		fprintf(stderr,"%s a %d points\n",data->players[i].name,data->players[i].points);
+		printf("%s a %d points\n",data->players[i].name,data->players[i].points);
 	}
+        //flush(stdout);
 	readUp();
 }
 
 /*read plis in shared memory*/
 Card* lirePlis(){
-	int shmid,i;
+	int shmid;
 	key_t key;
 	memStruct* data;
-	
+	printf("en attente\n");
 	readDown();
+        printf("access\n");
 	key = KEY;
 	SYS(shmid = shmget(key,sizeof(memStruct),IPC_EXCL | 0644));
 
@@ -98,12 +100,9 @@ Card* lirePlis(){
   		perror("Pas de mémoire partagée\n");
   		exit(1);
 	}
-	
-	for(i = 0;i<data->nbPlayers;i++){
-		fprintf(stderr,"Carte %d: num %d - couleur %d ",i,data->plis[i].num,data->plis[i].couleur);
-	}
         
 	readUp();
+        printf("out\n");
     return data->plis;
 }
 
@@ -118,7 +117,7 @@ void readDown(){
 /* algorithme du banquier pour la lecture*/
 void readUp(){
 	semaphore_down(MUTEX);
-	ecrireRc(lireRc()+1);
+	ecrireRc(lireRc()-1);
 	if(lireRc()==1)semaphore_up(BD);
 	semaphore_up(MUTEX);
 }
