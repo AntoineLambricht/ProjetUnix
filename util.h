@@ -21,6 +21,8 @@
 #define OK 0
 #define KO 1
 
+#define MAX_TURN 1
+
 #define CHIFFRE_PAYOO 7
 #define POINTS_PAYOO 40
 #define NB_CARDS 60

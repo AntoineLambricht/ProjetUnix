@@ -48,6 +48,7 @@ int main(int argc,char** argv){
 	Card pli[MAX_PLAYERS];
 	int player_to_play;
 	int first_player;
+	int turnCounterCard;
 	int turnCounter;
 	int player_turn_counter;
 	
@@ -231,7 +232,8 @@ int main(int argc,char** argv){
 					distribution(players,playerCount,cartes);
                     game_state=WAIT_FOR_ECART;
 					first_player = 0;
-					turnCounter = NB_CARDS/playerCount;
+					turnCounterCard = NB_CARDS/playerCount;
+					turnCounter = MAX_TURN;
 					break;
 				case WAIT_FOR_ECART: 
 				
@@ -296,6 +298,7 @@ int main(int argc,char** argv){
 							break;
 						case END_TURN:
 							fprintf(stderr,"END_TURN");
+							turnCounterCard--;
 							turnCounter--;
 							int j;
 							int couleur = pli[first_player].couleur;
@@ -319,10 +322,12 @@ int main(int argc,char** argv){
 							envoiPli.payload.pli = pli_to_send;
 							
 							send_message(envoiPli,players[looser].socket);					
-							
-							if(turnCounter == 0){
+							/*printf("turnCounter : %d\n",turnCounter); */
+							if(turnCounterCard == 0 || turnCounter == 0){
+								printf("test1");
 								game_state = END_ROUND;
 							}else{
+								printf("test2");
 								player temp[MAX_PLAYERS];
 								int j=looser;
 								for(i=0;i<playerCount;i++){
@@ -342,6 +347,7 @@ int main(int argc,char** argv){
 					break;
 				case END_ROUND:
 					//TODO demander point
+					printf("FIN DE MANCHE\n");
 					break;
 				default:
 					break;
