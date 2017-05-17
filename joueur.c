@@ -142,7 +142,8 @@ void choose_card(int socket, Card* our_cards, int *our_size){
     Card c [1];
     int couleur, contains;
     Card pli[MAX_PLAYERS];
-    memcpy(pli,lirePlis().pli,sizeof(Card)*MAX_PLAYERS);
+    Pli pli_lecture=lirePlis();
+    memcpy(pli,pli_lecture.pli,sizeof(Card)*MAX_PLAYERS);
     couleur=pli[0].couleur;
     contains = contains_color(couleur, our_cards, *our_size);
     if(couleur!=0){
@@ -287,7 +288,6 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
             j++;
         }
     }
-    //source=new_source;    
     memcpy(source,new_source,*size*sizeof(Card));
 }
 
