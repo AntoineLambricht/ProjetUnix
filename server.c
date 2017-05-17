@@ -13,7 +13,7 @@ int playing;
 void timer_handler(int signal){
 	if (signal == SIGALRM) {
 		timer_is_over = TRUE;
-		fprintf(stderr,"Timer end\n");
+		fprintf(stderr,"Les %d seconde sont finie\n",ALARM);
 	}
 }
 
@@ -32,7 +32,7 @@ void shutdown_server(player players[MAX_PLAYERS],int server_socket){
 }
 
 void restart(player players[MAX_PLAYERS],int* playerCount){
-	printf("Server resarting...\n");
+	printf("Server restarting...\n");
 	viderPlayer(players);
 	playing = FALSE;
 	*playerCount = 0;
@@ -40,6 +40,7 @@ void restart(player players[MAX_PLAYERS],int* playerCount){
 	timer.sa_handler = &timer_handler;
 	sigemptyset(&timer.sa_mask);
 	sigaction(SIGALRM, &timer, NULL);
+	printf("Server restarted!\n");
 }
 
 void viderPlayer(player players[MAX_PLAYERS]){
@@ -166,7 +167,7 @@ int main(int argc,char** argv){
 								fprintf(stderr,"Player %s à été inscrit (socket : %d) \n",players[playerCount-1].name,players[playerCount-1].socket);
 								
 								if(playerCount == 1){
-									fprintf(stderr,"Timer start\n");
+									fprintf(stderr,"Attente d'autres joueur, la partie va commencer dans %d secondes\n",ALARM);
 									alarm(ALARM);
 								}
 							}							
@@ -303,7 +304,6 @@ int main(int argc,char** argv){
 						
 							switch(player_turn_state){
 								case SEND_DEMEND:;
-									fprintf(stderr,"SEND DEMAND");
 									Message demandeCarte;
 									demandeCarte.action = DEMANDE_CARTE;
 									send_message(demandeCarte,players[player_to_play].socket);
@@ -315,7 +315,6 @@ int main(int argc,char** argv){
 								case END_PLAYER_TURN:
 								
 									/*si tout les joueurs on joué, fin du tour*/
-									fprintf(stderr,"Player %d\n",player_to_play);
 									player_turn_counter--;
 									if(player_turn_counter == 0){
 										turn_state = END_TURN;
@@ -332,7 +331,6 @@ int main(int argc,char** argv){
 							}
 							break;
 						case END_TURN:
-							fprintf(stderr,"END_TURN");
 							turnCounterCard--;
 							turnCounter--;
 							int j;
@@ -379,7 +377,6 @@ int main(int argc,char** argv){
 					break;
 				case END_ROUND:
 					round_counter--;
-					printf("FIN DE MANCHE\n");
 					for(i = 0;i<playerCount;i++){
 						Message demandePoint;
 						demandePoint.action = DEMANDE_POINTS;

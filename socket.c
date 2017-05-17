@@ -7,7 +7,6 @@
 #include "socket.h"
 
 void send_message(Message m, int socket) {
-	fprintf(stderr,"Message send :%d\n",m.action);
 	if (send(socket, &m, sizeof(Message),0) == -1) {
 		perror("Failed to send a message to the serveur");
 		exit(1);
