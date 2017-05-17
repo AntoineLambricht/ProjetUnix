@@ -38,7 +38,7 @@
 
 
 
-
+void shutdown_server();
 
 void melanger(Card cartes[]);
 

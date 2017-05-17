@@ -6,6 +6,13 @@
 #include "ipc.h"
 int semaphore_descriptor = -1;
 int rc=0;
+int rc_shmid=-1;
+
+void deleteSharedMemory(int shmid){
+	SYS(shmctl(shmid,IPC_RMID,0));
+	SYS(semctl(semaphore_descriptor, IPC_RMID, 0));
+	SYS(shmctl(rc_shmid,IPC_RMID,0));
+}
 
 /*create or connect to the shared memory*/
 int initSharedMemory(int is_server){
@@ -128,7 +135,7 @@ void readUp(){
 
 /* Initialise la sémaphore */
 void init_semaphore(int is_server) {
-    initRcMemory(is_server);
+    rc_shmid = initRcMemory(is_server);
     key_t semaphore_key = KEY_SEM;
     int semaphore_flag = (is_server) ? IPC_CREAT|0666 : 0666;
     if((semaphore_descriptor = semget(semaphore_key, 2, semaphore_flag)) == -1) {
@@ -141,9 +148,10 @@ void init_semaphore(int is_server) {
         || (semctl(semaphore_descriptor, BD, SETVAL, 1)) == -1 ) {
         /* TODO Error management */
         fprintf(stderr,"Semctl fail\n");
-        exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
     }
 }
+
 
 /* Sortie de zone protégée */
 int semaphore_up(int semaphore) {

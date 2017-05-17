@@ -57,6 +57,7 @@ int receive_msg(Message *msg, int fd) {
 
 
 void choose_card(int socket){
+	printf("TEST1");
 	Message msg;
     int couleur, contains;
     Card* pli = lirePlis();
@@ -135,6 +136,7 @@ void get_request(int server_socket){
 			case DEMANDE_CARTE:
                 printf("Vos cartes\n");
                 print_tab_color(our_cards, our_size);
+				//MAGIC
                 choose_card(server_socket);
                 break;
 			case DEMANDE_POINTS:

@@ -36,7 +36,7 @@ typedef struct memStruct {
 
 typedef int semaphore;
 
-
+void deleteSharedMemory(int shmid);
 int initSharedMemory(int is_server);
 
 void ecrirePlayers(player newPlayers[MAX_PLAYERS],int newNbPlayers);

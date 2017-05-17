@@ -7,6 +7,7 @@
 
 
 int timer_is_over;
+int shmid;
 
 void timer_handler(int signal){
 	if (signal == SIGALRM) {
@@ -30,7 +31,7 @@ int main(int argc,char** argv){
 	int player_turn_state = 0;
 	int ecartCount = 0;
 	struct timeval timeout;
-	struct sigaction timer;
+	struct sigaction timer,quit;
 	fd_set fdset;
 	Message message;
 	Card pli[MAX_PLAYERS];
@@ -38,7 +39,8 @@ int main(int argc,char** argv){
 	int first_player;
 	int turnCounter;
 	
-	initSharedMemory(TRUE);
+	
+	shmid = initSharedMemory(TRUE);
 	init_semaphore(TRUE);
 
 	initCartes(cartes);
@@ -54,6 +56,11 @@ int main(int argc,char** argv){
 	timer.sa_handler = &timer_handler;
 	sigemptyset(&timer.sa_mask);
 	sigaction(SIGALRM, &timer, NULL);
+	
+	/*initialise le server pour qu'il réagisse au signal SIGALARM*/
+	quit.sa_handler = &quit_handler;
+	sigemptyset(&quit.sa_mask);
+	sigaction(SIGINT, &quit, NULL);
 
 	port = atoi(argv[1]);
 
