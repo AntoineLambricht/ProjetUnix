@@ -74,8 +74,8 @@ void ecrirePlis(Card newPlis[MAX_PLAYERS]){
 
 
 /*read points in shared memory*/
-void lirePoints(){
-	int shmid,i;
+player* lirePoints(){
+	int shmid;
 	key_t key;
 	memStruct* data;
 	readDown();
@@ -87,11 +87,11 @@ void lirePoints(){
   		exit(1);
 	}
 	
-	for(i = 0;i<data->nbPlayers;i++){
+	/*for(i = 0;i<data->nbPlayers;i++){
 		printf("%s a %d points\n",data->players[i].name,data->players[i].points);
-	}
-        //flush(stdout);
+	}*/
 	readUp();
+        return data->players;
 }
 
 /*read plis in shared memory*/

@@ -75,22 +75,32 @@ int main(int argc,char** argv){
                         msg.action=REPONSE_POINTS;
                         msg.payload.points=score;
                         send_message(msg, server_socket);
+                        sleep(1);
+                        player* players=lirePoints();
+                        i=0;
+                        player winner=players[i];
+                        while(i<MAX_PLAYERS && players[i].socket==0){
+                            if(players[i].points>winner.points){
+                                winner=players[i];
+                            }
+                            printf("%s a un total de %d points\n",players[i].name,players[i].points);
+                        }
+                        printf("\n%s EST LE GRAND WINNER AVEC %d\n",players[i].name,players[i].points);
                         break;
                     case PLI_UPDATE:
-                        printf("\n\n\n\n");
-                        lirePoints();
+                        printf("\n\nUPDATE\n");
                         Pli pli = lirePlis();
-						i = 0;
-						while(i<pli.nbr && pli.pli[i].num != 0){
-							print_color(pli.pli[i]);
-							printf(" - ");
-							i++;
-						}
-						printf("\n");
-						/*print_tab_color(pli.pli,pli.nbr);*/
+			i = 0;
+			while(i<pli.nbr && pli.pli[i].num != 0){
+                            print_color(pli.pli[i]);
+                            printf(" - ");
+                            i++;
+			}
+			printf("\n");
+			/*print_tab_color(pli.pli,pli.nbr);*/
                         break;
                     case ALERTE_FIN_PARTIE:
-                                        //TODO
+                        printf("Partie finie\n");
                         break;
                     case ENVOI_PLI:
                         memcpy(our_pli+our_pli_size,msg.payload.dist.cards,sizeof(Card)*msg.payload.pli.nbr);
@@ -189,8 +199,7 @@ Message inscription(){
 	printf("Enter your name > ");
 	scanf("%s", name);
 	fflush(stdin);
-	fflush(stdout);
-				
+	fflush(stdout);	
 	inscription.action = INSCRIPTION;
 	strcpy(inscription.payload.name,name);
 				
