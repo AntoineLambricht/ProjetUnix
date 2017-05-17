@@ -103,7 +103,9 @@ int main(int argc,char** argv){
                         printf("Partie finie\n");
                         break;
                     case ENVOI_PLI:
-                        memcpy(our_pli+our_pli_size,msg.payload.dist.cards,sizeof(Card)*msg.payload.pli.nbr);
+                        print_tab_color(our_pli,our_pli_size);
+                        printf("message");
+                        memcpy(our_pli+our_pli_size,msg.payload.pli.pli,sizeof(Card)*msg.payload.pli.nbr);
                         our_pli_size+=msg.payload.dist.nbr;
                         break;
                     default:
