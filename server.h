@@ -35,7 +35,7 @@
 #define END_PLAYER_TURN 2
 
 
-void shutdown_server(player players[MAX_PLAYERS]);
+void shutdown_server(player players[MAX_PLAYERS],int server_socket);
 
 void restart(player players[MAX_PLAYERS],int* playerCount);
 

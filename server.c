@@ -18,13 +18,16 @@ void timer_handler(int signal){
 }
 
 void quit_handler(int signal){
-	quitint = TRUE;
+	if (signal == SIGINT) {
+		quitint = TRUE;
+	}
 }
 
-void shutdown_server(player players[MAX_PLAYERS]){
+void shutdown_server(player players[MAX_PLAYERS],int server_socket){
 	printf("Server shutdown...\n");
 	deleteSharedMemory(shmid);
 	viderPlayer(players);
+	close(server_socket);
 	exit(0);
 }
 
@@ -33,6 +36,10 @@ void restart(player players[MAX_PLAYERS],int* playerCount){
 	viderPlayer(players);
 	playing = FALSE;
 	*playerCount = 0;
+	struct sigaction timer;
+	timer.sa_handler = &timer_handler;
+	sigemptyset(&timer.sa_mask);
+	sigaction(SIGALRM, &timer, NULL);
 }
 
 void viderPlayer(player players[MAX_PLAYERS]){
@@ -68,13 +75,10 @@ int main(int argc,char** argv){
 	int round_counter;
 	
 	
-	shmid = initSharedMemory(TRUE);
-	init_semaphore(TRUE);
+	
 
 	initCartes(cartes);
 	
-	
-	melanger(cartes);
 
 	if( argc != 2 ){
 		fprintf(stderr,"Usage: %s port\n",argv[0]);
@@ -93,6 +97,9 @@ int main(int argc,char** argv){
 	port = atoi(argv[1]);
 
 	initiateServer(&server_socket,port);
+	
+	shmid = initSharedMemory(TRUE);
+	init_semaphore(TRUE);
 
 	
 
@@ -225,18 +232,23 @@ int main(int argc,char** argv){
 							case REPONSE_POINTS:
 								players[i].points += msg.payload.points;
 								ecrirePlayers(players,playerCount);
-								
 								break;
 							default:
 								perror("action invalide\n");
 								exit(1);
 						}
 					} else {
-						fprintf(stderr,"Removing player \n");
-						removePlayer(players,&playerCount,i);
-						for (j = 0; j < MAX_PLAYERS; j++){
-							fprintf(stderr,"Player %d -> %s \n",j,players[j].name);
+						if(playing){
+							restart(players,&playerCount);
+							
+						}else{
+							fprintf(stderr,"Removing player \n");
+							removePlayer(players,&playerCount,i);
+							for (j = 0; j < MAX_PLAYERS; j++){
+								fprintf(stderr,"Player %d -> %s \n",j,players[j].name);
+							}
 						}
+						
 					}
 
 				}
@@ -246,7 +258,7 @@ int main(int argc,char** argv){
 			switch(game_state){
 				
 				case START_ROUND:
-				
+					melanger(cartes);
 					distribution(players,playerCount,cartes);
                     game_state=WAIT_FOR_ECART;
 					first_player = 0;
@@ -376,12 +388,7 @@ int main(int argc,char** argv){
 							alerteFinPartie.action = ALERTE_FIN_PARTIE;
 							send_message(alerteFinPartie,players[i].socket);
 						}
-						
 						restart(players,&playerCount);
-						timer.sa_handler = &timer_handler;
-						sigemptyset(&timer.sa_mask);
-						sigaction(SIGALRM, &timer, NULL);
-						
 					}
 					game_state = START_ROUND;
 					break;
@@ -393,17 +400,13 @@ int main(int argc,char** argv){
 				if(playerCount>=2){
 					playing = TRUE;
 					round_counter = MAX_ROUND;
-
 				}else{
-					timer.sa_handler = &timer_handler;
-					sigemptyset(&timer.sa_mask);
-					sigaction(SIGALRM, &timer, NULL);
 					restart(players,&playerCount);
 				}
 				timer_is_over = FALSE;
 			}
 			if(quitint){
-				shutdown_server(players);
+				shutdown_server(players,server_socket);
 			}
 		}
 

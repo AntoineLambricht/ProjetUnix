@@ -32,7 +32,7 @@ int main(int argc,char** argv){
 	//initialise la connection et l'inscription
 	Message msg = inscription();
 	initiateConnection(&server_socket,host,port,msg);
-        glob_server=server_socket;
+    glob_server=server_socket;
 	fprintf(stderr,"Connected\n");
 	
         /*initialise le server pour qu'il réagisse au signal SIGALARM*/
@@ -303,7 +303,9 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
 
 
 void quit_handler(int signal){
-	shutdown_joueur();
+	if (signal == SIGINT) {
+		shutdown_joueur();
+	}
 }
 
 void shutdown_joueur(){
