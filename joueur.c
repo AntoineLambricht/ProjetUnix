@@ -87,10 +87,9 @@ int main(int argc,char** argv){
                         i=0;
                         player winner=players[i];
                         while(i<MAX_PLAYERS && players[i].socket==0){
-                            if(players[i].points<winner.points){
+                            if(players[i].points>winner.points){
                                 winner=players[i];
                             }
-                            printf("%s a un total de %d points\n",players[i].name,players[i].points);
                         }
                         printf("\n%s remporte la manche avec %d points\n",players[i].name,players[i].points);
                         break;
