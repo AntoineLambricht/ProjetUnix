@@ -371,7 +371,7 @@ int main(int argc,char** argv){
 					
 					if(round_counter == 0){
 						
-						for(int i = 0;i<playerCount;i++){
+						for(i = 0;i<playerCount;i++){
 							Message alerteFinPartie;
 							alerteFinPartie.action = ALERTE_FIN_PARTIE;
 							send_message(alerteFinPartie,players[i].socket);
