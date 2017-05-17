@@ -201,7 +201,9 @@ Message inscription(){
 	Message inscription;
 	
 	printf("Enter your name > ");
-	scanf("%s", name);
+        if(scanf("%s", name)==EOF){
+            shutdown_joueur();
+        }
 	fflush(stdin);
 	fflush(stdout);	
 	inscription.action = INSCRIPTION;
@@ -242,13 +244,17 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
             printf("\nInvalide, recommencer\n");
         }
         invalide=FALSE;
-        scanf("%s",l);
-        printf("\n%s\n",l);
+        if(scanf("%s",l)==EOF){
+            shutdown_joueur();
+        }
         token=strtok(l,"-");
+        printf("\n%s\n",token);
+        if(token==NULL){
+            invalide=TRUE;
+            break;
+        }
         tab[0]=atoi(token);
         i=1;
-        
-        
         while(i<nbr && token!=NULL){
             token=strtok(NULL,"-");
             if(token!=NULL){
