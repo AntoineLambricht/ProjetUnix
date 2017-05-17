@@ -16,7 +16,7 @@
 #include 	<sys/time.h>
 #include 	<time.h>
 
-#define ALARM 1
+#define ALARM 5
 
 /*game_state variables*/
 #define START_ROUND 0

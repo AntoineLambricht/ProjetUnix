@@ -49,6 +49,7 @@ int main(int argc,char** argv){
 	int player_to_play;
 	int first_player;
 	int turnCounter;
+	int player_turn_counter;
 	
 	
 	shmid = initSharedMemory(TRUE);
@@ -258,7 +259,7 @@ int main(int argc,char** argv){
 							/*test*/
 							memset(&pli,0,sizeof(Card)*playerCount);
 							ecrirePlis(pli);
-							
+							player_turn_counter = playerCount;
 							turn_state = START_TURN;
 							break;
 						case START_TURN:
@@ -278,13 +279,17 @@ int main(int argc,char** argv){
 								
 									/*si tout les joueurs on joué, fin du tour*/
 									fprintf(stderr,"Player %d\n",player_to_play);
-									//TODO USE player turn counter
-									if(player_to_play == playerCount-1){
+									player_turn_counter--;
+									if(player_turn_counter == 0){
 										turn_state = END_TURN;
 									}else{
 										player_to_play++;
-										player_turn_state = SEND_DEMEND;
+										if(player_to_play == playerCount){
+											player_to_play = 0;
+										}
+										
 									}
+									player_turn_state = SEND_DEMEND;
 									break;
 								
 							}
@@ -317,6 +322,9 @@ int main(int argc,char** argv){
 							
 							if(turnCounter == 0){
 								game_state = END_ROUND;
+							}else{
+								first_player = looser;
+								turn_state = INIT_TURN;
 							}
 							break;
 							

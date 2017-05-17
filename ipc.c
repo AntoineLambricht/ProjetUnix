@@ -18,7 +18,7 @@ void deleteSharedMemory(int shmid){
 int initSharedMemory(int is_server){
   key_t key;
   int shmid,shmflg;
-  shmflg = (is_server) ? IPC_CREAT|0644 : 0644;
+  shmflg = (is_server) ? IPC_CREAT|IPC_EXCL|0644 : 0644;
   key = KEY;
   SYS(shmid = shmget(key,sizeof(memStruct),shmflg));
   return shmid;

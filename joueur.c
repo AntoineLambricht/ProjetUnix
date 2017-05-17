@@ -8,8 +8,8 @@
 
 int main(int argc,char** argv){
 	Card our_cards[MAX_CARD_BY_PLAYER];
-        Card our_pli[MAX_CARD_BY_PLAYER];
-        int our_size,our_pli_size=0;
+    Card our_pli[MAX_CARD_BY_PLAYER];
+	int our_size,our_pli_size=0;
 	int server_socket,port;
 	struct hostent *host;
     
@@ -47,7 +47,7 @@ int main(int argc,char** argv){
                         break;
                     case DISTRIBUTION_ECART:;
                         int new_size;
-                        new_size=MAX_CARD_BY_PLAYER;
+                        new_size=our_size+SIZE_ECART;
                         memcpy(our_cards+our_size,msg.payload.ecart,sizeof(Card)*SIZE_ECART);
                         our_size=new_size;
                         printf("Ecart reçu\n");
@@ -142,7 +142,7 @@ void choose_card(int socket, Card* our_cards, int *our_size){
     Card c [1];
     int couleur, contains;
     Card pli[MAX_PLAYERS];
-    pli= lirePlis().pli;
+    memcpy(pli,lirePlis().pli,sizeof(Card)*MAX_PLAYERS);
     couleur=pli[0].couleur;
     contains = contains_color(couleur, our_cards, *our_size);
     if(couleur!=0){
