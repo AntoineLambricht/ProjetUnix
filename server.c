@@ -200,8 +200,7 @@ int main(int argc,char** argv){
 								m.action = PLI_UPDATE;
 								for(k = 0;k<playerCount;k++){
 									send_message(m,players[k].socket);
-								}
-								
+								} 								
 								player_turn_state = END_PLAYER_TURN;
 								break;
 							case REPONSE_POINTS:
