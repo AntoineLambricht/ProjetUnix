@@ -5,8 +5,10 @@
 */
 #include "joueur.h"
 
-
+int glob_shmid;
+int glob_server;
 int main(int argc,char** argv){
+        struct sigaction quit;
 	Card our_cards[MAX_CARD_BY_PLAYER];
     Card our_pli[MAX_CARD_BY_PLAYER];
 	int our_size,our_pli_size=0;
@@ -24,14 +26,21 @@ int main(int argc,char** argv){
 	}
 	port = atoi(argv[2]);
 
-	initSharedMemory(FALSE);
+	glob_shmid =initSharedMemory(FALSE);
 	init_semaphore(FALSE);
 
 	//initialise la connection et l'inscription
 	Message msg = inscription();
 	initiateConnection(&server_socket,host,port,msg);
+        glob_server=server_socket;
 	fprintf(stderr,"Connected\n");
 	
+        /*initialise le server pour qu'il réagisse au signal SIGALARM*/
+	quit.sa_handler = &quit_handler;
+	sigemptyset(&quit.sa_mask);
+	sigaction(SIGINT, &quit, NULL);
+        
+        
 	while(TRUE){
             Message msg;
             int i,couleur_payoo;
@@ -75,7 +84,6 @@ int main(int argc,char** argv){
                         msg.action=REPONSE_POINTS;
                         msg.payload.points=score;
                         send_message(msg, server_socket);
-                        sleep(1);
                         player* players=lirePoints();
                         i=0;
                         player winner=players[i];
@@ -85,7 +93,7 @@ int main(int argc,char** argv){
                             }
                             printf("%s a un total de %d points\n",players[i].name,players[i].points);
                         }
-                        printf("\n%s EST LE GRAND WINNER AVEC %d\n",players[i].name,players[i].points);
+                        printf("\n%s remporte la manche avec %d points\n",players[i].name,players[i].points);
                         break;
                     case PLI_UPDATE:
                         printf("\n\nUPDATE\n");
@@ -101,6 +109,8 @@ int main(int argc,char** argv){
                         break;
                     case ALERTE_FIN_PARTIE:
                         printf("Partie finie\n");
+                        shutdown_joueur();
+                        exit(0);
                         break;
                     case ENVOI_PLI:
                         memcpy(our_pli+our_pli_size,msg.payload.pli.pli,sizeof(Card)*msg.payload.pli.nbr);
@@ -289,5 +299,17 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
         }
     }
     memcpy(source,new_source,*size*sizeof(Card));
+}
+
+
+void quit_handler(int signal){
+	shutdown_joueur();
+}
+
+void shutdown_joueur(){
+	printf("Joueur shutdown...\n");
+	deleteSharedMemory(glob_shmid);
+        close(glob_server);
+	exit(0);
 }
 

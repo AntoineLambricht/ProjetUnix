@@ -7,7 +7,7 @@
 #define _JOUEUR_H_
 
 #include 	<fcntl.h>
-
+#include 	<signal.h>
 #include "util.h"
 #include "socket.h"
 #include "ipc.h"
@@ -26,5 +26,11 @@ int contains_color(int couleur, Card* our_cards,int our_size);
 void choose_card(int socket, Card* our_cards, int *our_size);
 
 int receive_msg(Message *msg, int fd);
+
+void timer_handler(int signal);
+
+void shutdown_joueur();
+
+void quit_handler(int signal);
 
 #endif
