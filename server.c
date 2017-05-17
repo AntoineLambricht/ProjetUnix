@@ -18,6 +18,17 @@ void timer_handler(int signal){
 	}
 }
 
+void quit_handler(int signal){
+	shutdown_server();
+}
+
+void shutdown_server(){
+	printf("Server shutdown...");
+	deleteSharedMemory(shmid);
+	/*closeSockets();*/
+	exit(0);
+}
+
 
 int main(int argc,char** argv){
 	/*char buffer[256];*/
