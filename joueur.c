@@ -5,7 +5,6 @@
 */
 #include "joueur.h"
 
-int glob_shmid;
 int glob_server;
 int main(int argc,char** argv){
         struct sigaction quit;
@@ -26,7 +25,7 @@ int main(int argc,char** argv){
 	}
 	port = atoi(argv[2]);
 
-	glob_shmid =initSharedMemory(FALSE);
+	initSharedMemory(FALSE);
 	init_semaphore(FALSE);
 
 	//initialise la connection et l'inscription
@@ -88,7 +87,7 @@ int main(int argc,char** argv){
                         i=0;
                         player winner=players[i];
                         while(i<MAX_PLAYERS && players[i].socket==0){
-                            if(players[i].points>winner.points){
+                            if(players[i].points<winner.points){
                                 winner=players[i];
                             }
                             printf("%s a un total de %d points\n",players[i].name,players[i].points);
@@ -307,9 +306,8 @@ void quit_handler(int signal){
 }
 
 void shutdown_joueur(){
-	printf("Joueur shutdown...\n");
-	/*deleteSharedMemory(glob_shmid);*/
+    printf("Joueur shutdown...\n");
     close(glob_server);
-	exit(0);
+    exit(0);
 }
 
