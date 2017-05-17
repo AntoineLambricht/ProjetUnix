@@ -15,14 +15,16 @@
 
 Message inscription();
 
-void get_request(int client_socket);
 
-void register_cards(Message msg, int socket);
+
+void register_cards(Message msg, int socket, Card* our_cards, int *our_size);
 
 void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr);
 
-int contains_color(int couleur);
+int contains_color(int couleur, Card* our_cards,int our_size);
 
-void choose_card(int socket);
+void choose_card(int socket, Card* our_cards, int *our_size);
+
+int receive_msg(Message *msg, int fd);
 
 #endif

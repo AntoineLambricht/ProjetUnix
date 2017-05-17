@@ -5,11 +5,11 @@
 */
 #include "joueur.h"
 
-Card* our_cards;
-int our_size;
+
 int main(int argc,char** argv){
-	
-	int client_socket,port;
+	Card our_cards[MAX_CARD_BY_PLAYER];
+        int our_size;
+	int server_socket,port;
 	struct hostent *host;
     
 	if( argc != 3 ){
@@ -28,13 +28,69 @@ int main(int argc,char** argv){
 
 	//initialise la connection et l'inscription
 	Message msg = inscription();
-	initiateConnection(&client_socket,host,port,msg);
+	initiateConnection(&server_socket,host,port,msg);
 	fprintf(stderr,"Connected\n");
 	
 	while(TRUE){
-		get_request(client_socket);
+            Message msg;
+            int i,couleur_payoo;
+                if (receive_msg(&msg,server_socket)){
+                        fprintf(stderr,"Message action from server :%d\n",msg.action);
+                        int action = msg.action;
+                        switch(action){
+                    case INSCRIPTIONKO:
+                        fprintf(stderr,"%s",msg.payload.str);
+                        exit(1);
+                    case DISTRIBUTION:
+                        register_cards(msg,server_socket, our_cards, &our_size);
+                        break;
+                    case DISTRIBUTION_ECART:;
+                        int new_size;
+                        new_size=MAX_CARD_BY_PLAYER;
+                        memcpy(our_cards+our_size,msg.payload.ecart,sizeof(Card)*SIZE_ECART);
+                        our_size=new_size;
+                        printf("Ecart reçu\n");
+                        print_tab_color(msg.payload.ecart, SIZE_ECART);
+                        break;
+                    case PAPAYOO:
+                        couleur_payoo=msg.payload.papayoo;
+                        break;
+                    case DEMANDE_CARTE:
+                        printf("Vos cartes\n");
+                        print_tab_color(our_cards, our_size);
+                        choose_card(server_socket,our_cards,&our_size);
+                        break;
+                    case DEMANDE_POINTS:
+                                        //TODO
+                        break;
+                    case PLI_UPDATE:
+                        printf("\n\n\n\n");
+                        lirePoints();
+                        Card* pli = lirePlis();
+                        i=MAX_PLAYERS;
+                        while(i>0 && pli[i].num==0){
+                            i--;
+                        }
+                        if(i<0){      
+                            printf("Pli vide \n");
+                        }else{
+                            printf("Sommet du pli: \n");
+                            print_color(pli[i]);
+                            printf("\n");
+                        }
+                        break;
+                    case ALERTE_FIN_PARTIE:
+                                        //TODO
+                        break;
+                    default:
+                        perror("action invalide");
+                        exit(1);
+                    }
+                }else{
+                        exit(1);
+                }
 	}
-	close(client_socket);
+	close(server_socket);
 	return EXIT_SUCCESS;
 }
 
@@ -56,14 +112,14 @@ int receive_msg(Message *msg, int fd) {
 
 
 
-void choose_card(int socket){
-	printf("TEST1");
-	Message msg;
+
+void choose_card(int socket, Card* our_cards, int *our_size){
+    Message msg;
+    Card c [1];
     int couleur, contains;
     Card* pli = lirePlis();
     couleur=pli[0].couleur;
-    contains = contains_color(couleur);
-	printf("Couleur : %d",couleur);
+    contains = contains_color(couleur, our_cards, *our_size);
     if(couleur!=0){
         char *couleur_str;
         switch(couleur){
@@ -85,18 +141,18 @@ void choose_card(int socket){
         }
         printf("La couleur est %s\n",couleur_str);
     }
-    printf("Entrer l'emplacement de la carte que vous désirez placer\n");
-    lire_remove_emplacements(&msg.payload.carte,our_cards,&our_size,1);
-    while(couleur!=0 && couleur!=msg.payload.carte.couleur && contains){
+    printf("Sélectionez la carte que vous voulez jouer\n");
+    lire_remove_emplacements(c,our_cards,our_size,1);
+    while(couleur!=0 && couleur!=c[0].couleur && contains){
         printf("Cette carte n'est pas de la bonne couleur\n");
-        lire_remove_emplacements(&msg.payload.carte,our_cards,&our_size,1);
+        lire_remove_emplacements(c,our_cards,our_size,1);
     }
+    msg.payload.carte=c[0];
     msg.action=REPONSE_CARTE;
-	fprintf(stderr,"Carte envoyée : %d couleur %d",msg.payload.carte.num,msg.payload.carte.couleur);
     send_message(msg,socket);
 }
 
-int contains_color(int couleur){
+int contains_color(int couleur, Card* our_cards,int our_size){
     Card *q;
     if(couleur==0){
         return FALSE;
@@ -109,54 +165,7 @@ int contains_color(int couleur){
     return FALSE;
 }
 
-void get_request(int server_socket){
-	Message msg;
-    int couleur_payoo;
-	if (receive_msg(&msg,server_socket)){
-		fprintf(stderr,"Message action from server :%d\n",msg.action);
-		int action = msg.action;
-		switch(action){
-			case INSCRIPTIONKO:
-                fprintf(stderr,"%s",msg.payload.str);
-                exit(1);
-            case DISTRIBUTION:
-                register_cards(msg,server_socket);
-                break;
-			case DISTRIBUTION_ECART:;
-				int new_size;
-				new_size=MAX_CARD_BY_PLAYER;
-				memcpy(our_cards+our_size,msg.payload.ecart,sizeof(Card)*SIZE_ECART);
-				our_size=new_size;
-                printf("Ecart reçu\n");
-                print_tab_color(msg.payload.ecart, SIZE_ECART);
-                break;
-            case PAPAYOO:
-                couleur_payoo=msg.payload.papayoo;
-                break;
-			case DEMANDE_CARTE:
-                printf("Vos cartes\n");
-                print_tab_color(our_cards, our_size);
-				//MAGIC
-                choose_card(server_socket);
-                break;
-			case DEMANDE_POINTS:
-				//TODO
-				break;
-			case PLI_UPDATE:
-                fprintf(stderr,"UPDATE PLI\n"); 
-				break;
-			case ALERTE_FIN_PARTIE:
-				//TODO
-				break;
-			default:
-				perror("action invalide");
-                exit(1);
-		}
-	}else{
-		exit(1);
-	}
 
-}
 
 Message inscription(){
 	char name[NAME_SIZE];
@@ -173,15 +182,16 @@ Message inscription(){
 	return inscription;
 }
 
-void register_cards(Message msg, int socket){
+void register_cards(Message msg, int socket, Card* our_cards, int *our_size){
     Message m;
     Dist deck= msg.payload.dist;
     int nbr = deck.nbr;
-    our_cards=deck.cards;
+    memcpy(our_cards,deck.cards,MAX_CARD_BY_PLAYER*sizeof(Card));
+    //our_cards=deck.cards;
     print_tab_color(our_cards,nbr);
     printf("Vous allez maintenant choisir l'ecart\n");
     lire_remove_emplacements(m.payload.ecart,our_cards,&nbr,SIZE_ECART);
-    our_size=nbr;
+    *our_size=nbr;
     m.action=ENVOI_ECART;
    
     send_message(m,socket);
@@ -196,7 +206,7 @@ void lire_remove_emplacements(Card * buffer,Card * source,int *size,int nbr){
     int invalide=FALSE;
     char * token;
     /*Entrée des cartes*/
-    printf("Entrer l'emplacement des %d cartes (en commancant par 0)\n",SIZE_ECART);
+    printf("Entrer l'emplacement des %d cartes (en commancant par 0)\n",nbr);
     printf("usage->1-2-3 ...\n");
     /*validation du bon format*/
     do{
