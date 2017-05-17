@@ -11,7 +11,7 @@
 #define KEY_SEM 1066
 #define KEY_SPACE_SEM 1082
 
-#define MUTEX 1
+#define MUTEX 0
 #define BD 1
 #define SINGLE_OPERATION 1
 

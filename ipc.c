@@ -50,6 +50,7 @@ void ecrirePlayers(player newPlayers[MAX_PLAYERS],int newNbPlayers){
 
 /*writes the plis in shared memory*/
 void ecrirePlis(Card newPlis[MAX_PLAYERS]){
+	
 	int shmid,i;
 	key_t key;
 	memStruct* data;
@@ -68,6 +69,7 @@ void ecrirePlis(Card newPlis[MAX_PLAYERS]){
 		data->plis[i].couleur = newPlis[i].couleur;
 	}
 	semaphore_up(BD);
+	
 }
 
 
@@ -94,6 +96,7 @@ void lirePoints(){
 
 /*read plis in shared memory*/
 Pli lirePlis(){
+	
 	int shmid;
 	key_t key;
 	memStruct* data;
@@ -105,7 +108,7 @@ Pli lirePlis(){
   		perror("Pas de mémoire partagée\n");
   		exit(1);
 	}
-        
+	
 	readUp();
 	Pli pli;
 	pli.nbr = data->nbPlayers;
@@ -117,7 +120,7 @@ Pli lirePlis(){
 void readDown(){
 	semaphore_down(MUTEX);
 	ecrireRc(lireRc()+1);
-	if(lireRc()==1)semaphore_up(BD);
+	if(lireRc()==1)semaphore_down(BD);
 	semaphore_up(MUTEX);
 }
 
@@ -125,7 +128,7 @@ void readDown(){
 void readUp(){
 	semaphore_down(MUTEX);
 	ecrireRc(lireRc()-1);
-	if(lireRc()==1)semaphore_up(BD);
+	if(lireRc()==0)semaphore_up(BD);
 	semaphore_up(MUTEX);
 }
 
