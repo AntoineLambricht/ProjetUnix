@@ -242,6 +242,9 @@ int main(int argc,char** argv){
 					} else {
 						if(playing){
 							restart(players,&playerCount);
+							game_state = START_ROUND;
+							turn_state = INIT_TURN;
+							player_turn_state = SEND_DEMEND;
 							
 						}else{
 							fprintf(stderr,"Removing player \n");
