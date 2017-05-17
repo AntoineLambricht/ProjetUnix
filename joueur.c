@@ -97,14 +97,14 @@ int main(int argc,char** argv){
                     case PLI_UPDATE:
                         printf("\n\nUPDATE\n");
                         Pli pli = lirePlis();
-			i = 0;
-			while(i<pli.nbr && pli.pli[i].num != 0){
-                            print_color(pli.pli[i]);
-                            printf(" - ");
-                            i++;
-			}
-			printf("\n");
-			/*print_tab_color(pli.pli,pli.nbr);*/
+						i = 0;
+						while(i<pli.nbr && pli.pli[i].num != 0){
+										print_color(pli.pli[i]);
+										printf(" - ");
+										i++;
+						}
+						printf("\n");
+						/*print_tab_color(pli.pli,pli.nbr);*/
                         break;
                     case ALERTE_FIN_PARTIE:
                         printf("Partie finie\n");
@@ -140,11 +140,6 @@ int receive_msg(Message *msg, int fd) {
 	}
 	return TRUE;
 }
-
-
-
-
-
 
 void choose_card(int socket, Card* our_cards, int *our_size){
     Message msg;

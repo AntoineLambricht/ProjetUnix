@@ -105,7 +105,9 @@ int main(int argc,char** argv){
 
 
 	while(TRUE){
-
+		if(quitint){
+			shutdown_server(players,server_socket);
+		}
 		int action,i,j;
 
 
@@ -405,9 +407,7 @@ int main(int argc,char** argv){
 				}
 				timer_is_over = FALSE;
 			}
-			if(quitint){
-				shutdown_server(players,server_socket);
-			}
+			
 		}
 
 	}
