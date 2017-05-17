@@ -308,8 +308,8 @@ void quit_handler(int signal){
 
 void shutdown_joueur(){
 	printf("Joueur shutdown...\n");
-	deleteSharedMemory(glob_shmid);
-        close(glob_server);
+	/*deleteSharedMemory(glob_shmid);*/
+    close(glob_server);
 	exit(0);
 }
 

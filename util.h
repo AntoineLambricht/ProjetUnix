@@ -22,6 +22,7 @@
 #define KO 1
 
 #define MAX_TURN 1
+#define MAX_ROUND 3
 
 #define CHIFFRE_PAYOO 7
 #define POINTS_PAYOO 40

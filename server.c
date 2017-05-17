@@ -5,30 +5,45 @@
 */
 #include "server.h"
 
-
+int quitint;
 int timer_is_over;
 int shmid;
+int playing;
 
 void timer_handler(int signal){
 	if (signal == SIGALRM) {
-		/*TODO si il n'y à pas asser de joueurs restart l'inscription (ou continuer d'attendre ?)
-		sinon lancer la partie*/
 		timer_is_over = TRUE;
 		fprintf(stderr,"Timer end\n");
 	}
 }
 
 void quit_handler(int signal){
-	shutdown_server();
+	quitint = TRUE;
 }
 
-void shutdown_server(){
+void shutdown_server(player players[MAX_PLAYERS]){
 	printf("Server shutdown...\n");
 	deleteSharedMemory(shmid);
-	/*closeSockets();*/
+	viderPlayer(players);
 	exit(0);
 }
 
+void restart(player players[MAX_PLAYERS],int* playerCount){
+	printf("Server resarting...\n");
+	viderPlayer(players);
+	playing = FALSE;
+	*playerCount = 0;
+}
+
+void viderPlayer(player players[MAX_PLAYERS]){
+	int i;
+	for(i=0;i<MAX_PLAYERS;i++){
+		if(players[i].socket != 0){
+			SYS(close(players[i].socket));
+		}
+	}
+	memset(players,0,sizeof(player)*MAX_PLAYERS);
+}
 
 int main(int argc,char** argv){
 	/*char buffer[256];*/
@@ -36,7 +51,6 @@ int main(int argc,char** argv){
 	Card ecarts[MAX_PLAYERS][SIZE_ECART];
 	player players[MAX_PLAYERS] = {{0}};
 	int server_socket,port,highestFd,playerCount = 0;
-	int playing = FALSE;
 	int game_state = 0;
 	int turn_state = 0;
 	int player_turn_state = 0;
@@ -51,6 +65,7 @@ int main(int argc,char** argv){
 	int turnCounterCard;
 	int turnCounter;
 	int player_turn_counter;
+	int round_counter;
 	
 	
 	shmid = initSharedMemory(TRUE);
@@ -79,7 +94,7 @@ int main(int argc,char** argv){
 
 	initiateServer(&server_socket,port);
 
-
+	
 
 
 	while(TRUE){
@@ -141,7 +156,7 @@ int main(int argc,char** argv){
 								ecrirePlayers(players,playerCount);
 								fprintf(stderr,"Player %s à été inscrit (socket : %d) \n",players[playerCount-1].name,players[playerCount-1].socket);
 								
-								if(playerCount == 2){
+								if(playerCount == 1){
 									fprintf(stderr,"Timer start\n");
 									alarm(ALARM);
 								}
@@ -188,7 +203,9 @@ int main(int argc,char** argv){
 											memcpy(distribution_ecart.payload.ecart,&ecarts[j+1],sizeof(Card)*SIZE_ECART);
 										}
 										send_message(distribution_ecart,players[j].socket);
+										ecartCount = 0;
 										game_state = 2;
+										
 									}
 								}
 								break;
@@ -206,7 +223,8 @@ int main(int argc,char** argv){
 								player_turn_state = END_PLAYER_TURN;
 								break;
 							case REPONSE_POINTS:
-								//TODO
+								players[i].points += msg.payload.points;
+								ecrirePlayers(players,playerCount);
 								
 								break;
 							default:
@@ -321,13 +339,10 @@ int main(int argc,char** argv){
 							envoiPli.action = ENVOI_PLI;
 							envoiPli.payload.pli = pli_to_send;
 							
-							send_message(envoiPli,players[looser].socket);					
-							/*printf("turnCounter : %d\n",turnCounter); */
+							send_message(envoiPli,players[looser].socket);
 							if(turnCounterCard == 0 || turnCounter == 0){
-								printf("test1");
 								game_state = END_ROUND;
 							}else{
-								printf("test2");
 								player temp[MAX_PLAYERS];
 								int j=looser;
 								for(i=0;i<playerCount;i++){
@@ -338,16 +353,37 @@ int main(int argc,char** argv){
 									}
 								}
 								memcpy(players,temp,sizeof(player)*MAX_PLAYERS);
-								/*first_player = looser;*/
-								turn_state = INIT_TURN;
+								
 							}
+							turn_state = INIT_TURN;
 							break;
 							
 					}
 					break;
 				case END_ROUND:
-					//TODO demander point
+					round_counter--;
 					printf("FIN DE MANCHE\n");
+					for(i = 0;i<playerCount;i++){
+						Message demandePoint;
+						demandePoint.action = DEMANDE_POINTS;
+						send_message(demandePoint,players[i].socket);
+					}
+					
+					if(round_counter == 0){
+						
+						for(int i = 0;i<playerCount;i++){
+							Message alerteFinPartie;
+							alerteFinPartie.action = ALERTE_FIN_PARTIE;
+							send_message(alerteFinPartie,players[i].socket);
+						}
+						
+						restart(players,&playerCount);
+						timer.sa_handler = &timer_handler;
+						sigemptyset(&timer.sa_mask);
+						sigaction(SIGALRM, &timer, NULL);
+						
+					}
+					game_state = START_ROUND;
 					break;
 				default:
 					break;
@@ -356,10 +392,18 @@ int main(int argc,char** argv){
 			if(timer_is_over){
 				if(playerCount>=2){
 					playing = TRUE;
+					round_counter = MAX_ROUND;
 
 				}else{
-					alarm(ALARM);
+					timer.sa_handler = &timer_handler;
+					sigemptyset(&timer.sa_mask);
+					sigaction(SIGALRM, &timer, NULL);
+					restart(players,&playerCount);
 				}
+				timer_is_over = FALSE;
+			}
+			if(quitint){
+				shutdown_server(players);
 			}
 		}
 

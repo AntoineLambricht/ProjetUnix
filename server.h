@@ -35,10 +35,11 @@
 #define END_PLAYER_TURN 2
 
 
+void shutdown_server(player players[MAX_PLAYERS]);
 
+void restart(player players[MAX_PLAYERS],int* playerCount);
 
-
-void shutdown_server();
+void viderPlayer(player players[MAX_PLAYERS]);
 
 void melanger(Card cartes[]);
 
